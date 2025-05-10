@@ -30,7 +30,6 @@ class _HomeState extends State<Home> {
         iconTheme: const IconThemeData(
           color: Colors.white, // Change the drawer icon color
         ),
-
       ),
       bottomNavigationBar: BottomNavigationWidget(),
       endDrawer: Drawer(
@@ -103,71 +102,78 @@ class _HomeState extends State<Home> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text("Post Lost Item"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
+        return SafeArea(
+          child: AlertDialog(
+            title: Text("Post Lost Item"),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundImage: AssetImage("assets/avatar.png"),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundImage: AssetImage("assets/avatar.png"),
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        "Username here",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
-                  SizedBox(width: 10),
-                  Text(
-                    "Username here",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  SizedBox(height: 40),
+                  SafeArea(
+                    child: TextField(
+                      controller: postController,
+                      maxLines: 7,
+                      decoration: InputDecoration(
+                        hintText: "Where did the item last seen?",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
                   ),
+
+                  SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        selectedImage = "assets/sample_image.png";
+                      });
+                    },
+                    icon: Icon(Icons.image),
+                    label: Text("Add Image"),
+                  ),
+                  if (selectedImage != null) ...[
+                    const SizedBox(height: 10),
+                    Image.asset(
+                      selectedImage!,
+                      height: 100,
+                      width: 100,
+                      fit: BoxFit.cover,
+                    ),
+                  ],
                 ],
               ),
-              SizedBox(height: 40),
-              TextField(
-                controller: postController,
-                maxLines: 7,
-                decoration: InputDecoration(
-                  hintText: "Where did the item last seen?",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton.icon(
+            ),
+            actions: [
+              TextButton(
                 onPressed: () {
-                  setState(() {
-                    selectedImage = "assets/sample_image.png";
-                  });
+                  Navigator.of(context).pop();
                 },
-                icon: Icon(Icons.image),
-                label: Text("Add Image"),
+                child: Text("Cancel"),
               ),
-              if (selectedImage != null) ...[
-                const SizedBox(height: 10),
-                Image.asset(
-                  selectedImage!,
-                  height: 100,
-                  width: 100,
-                  fit: BoxFit.cover,
-                ),
-              ],
+              TextButton(
+                onPressed: () {
+                  if (postController.text.isNotEmpty) {
+                    _addPost(postController.text);
+                  }
+                  Navigator.of(context).pop();
+                },
+                child: Text("Post"),
+              ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () {
-                if (postController.text.isNotEmpty) {
-                  _addPost(postController.text);
-                }
-                Navigator.of(context).pop();
-              },
-              child: Text("Post"),
-            ),
-          ],
         );
       },
     );
