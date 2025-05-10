@@ -1,4 +1,7 @@
+import 'dart:io' show File;
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:lost_and_found_system/components/bottom_navigation_widget.dart';
 import 'package:lost_and_found_system/pages/loginPage.dart';
 import 'package:lost_and_found_system/profileNavigations/aboutUs.dart';
@@ -99,12 +102,29 @@ class _HomeState extends State<Home> {
     final TextEditingController postController = TextEditingController();
     String? selectedImage;
 
+    Future<void> pickImage() async {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+      if (image != null) {
+        setState(() {
+          selectedImage = image.path; // Get the image file path
+        });
+      }
+    }
+
     showDialog(
       context: context,
       builder: (context) {
         return SafeArea(
           child: AlertDialog(
-            title: Text("Post Lost Item"),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            title: Text(
+              "Create Post",
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+            ),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -112,17 +132,18 @@ class _HomeState extends State<Home> {
                   Row(
                     children: [
                       CircleAvatar(
-                        radius: 50,
+                        radius: 29,
                         backgroundImage: AssetImage("assets/avatar.png"),
                       ),
                       SizedBox(width: 10),
                       Text(
-                        "Username here",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        "Angel Kyle L. Alaba",
+                        textAlign: TextAlign.start,
+                        style: TextStyle(fontWeight: FontWeight.w400),
                       ),
                     ],
                   ),
-                  SizedBox(height: 40),
+                  SizedBox(height: 20),
                   SafeArea(
                     child: TextField(
                       controller: postController,
@@ -136,18 +157,14 @@ class _HomeState extends State<Home> {
 
                   SizedBox(height: 20),
                   ElevatedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        selectedImage = "assets/sample_image.png";
-                      });
-                    },
-                    icon: Icon(Icons.image),
-                    label: Text("Add Image"),
+                    onPressed: pickImage, // Call the image picker
+                    icon: const Icon(Icons.image),
+                    label: const Text("Add Image"),
                   ),
                   if (selectedImage != null) ...[
                     const SizedBox(height: 10),
-                    Image.asset(
-                      selectedImage!,
+                    Image.file(
+                      File(selectedImage!), // Display the selected image
                       height: 100,
                       width: 100,
                       fit: BoxFit.cover,
