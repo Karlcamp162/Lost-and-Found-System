@@ -16,11 +16,11 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final List<String> posts = [];
+  final List<Map<String, dynamic>> posts = [];
 
-  void _addPost(String post) {
+  void _addPost(String post, List<String> imagePaths) {
     setState(() {
-      posts.add(post);
+      posts.add({'caption': post, 'images': imagePaths});
     });
   }
 
@@ -85,7 +85,44 @@ class _HomeState extends State<Home> {
         child: ListView.builder(
           itemCount: posts.length,
           itemBuilder: (context, index) {
-            return ListTile(title: Text(posts[index]));
+            final post = posts[index];
+            return Card(
+              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(post['caption'], style: TextStyle(fontSize: 16)),
+                    SizedBox(height: 10),
+                    if (post['images'] != null)
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children:
+                            (post['images'] as List<String>).map((path) {
+                              final file = File(path);
+                              if (file.existsSync()) {
+                                return Image.file(
+                                  file,
+                                  height: 80,
+                                  width: 80,
+                                  fit: BoxFit.cover,
+                                );
+                              } else {
+                                return Container(
+                                  width: 80,
+                                  height: 80,
+                                  color: Colors.grey[300],
+                                  child: Icon(Icons.broken_image),
+                                );
+                              }
+                            }).toList(),
+                      ),
+                  ],
+                ),
+              ),
+            );
           },
         ),
       ),
@@ -100,97 +137,104 @@ class _HomeState extends State<Home> {
 
   void _showAddPostDialog(BuildContext context) {
     final TextEditingController postController = TextEditingController();
-    String? selectedImage;
-
-    Future<void> pickImage() async {
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
-      if (image != null) {
-        setState(() {
-          selectedImage = image.path; // Get the image file path
-        });
-      }
-    }
+    List<String> selectedImages = [];
 
     showDialog(
       context: context,
       builder: (context) {
-        return SafeArea(
-          child: AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            title: Text(
-              "Create Post",
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 29,
-                        backgroundImage: AssetImage("assets/avatar.png"),
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "Angel Kyle L. Alaba",
-                        textAlign: TextAlign.start,
-                        style: TextStyle(fontWeight: FontWeight.w400),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                  SafeArea(
-                    child: TextField(
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            Future<void> pickImages() async {
+              final ImagePicker picker = ImagePicker();
+              final List<XFile> images = await picker.pickMultiImage();
+
+              if (images.isNotEmpty && images.length <= 5) {
+                setDialogState(() {
+                  selectedImages = images.map((xfile) => xfile.path).toList();
+                });
+              } else if (images.length > 5) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Please select up to 5 images only.")),
+                );
+              }
+            }
+
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              title: Text(
+                "Create Post",
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 29,
+                          backgroundImage: AssetImage("assets/avatar.png"),
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          "Angel Kyle L. Alaba",
+                          style: TextStyle(fontWeight: FontWeight.w400),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    TextField(
                       controller: postController,
-                      maxLines: 7,
+                      maxLines: 5,
                       decoration: InputDecoration(
-                        hintText: "Where did the item last seen?",
+                        hintText: "Where did you last see the item?",
                         border: OutlineInputBorder(),
                       ),
                     ),
-                  ),
-
-                  SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    onPressed: pickImage, // Call the image picker
-                    icon: const Icon(Icons.image),
-                    label: const Text("Add Image"),
-                  ),
-                  if (selectedImage != null) ...[
-                    const SizedBox(height: 10),
-                    Image.file(
-                      File(selectedImage!), // Display the selected image
-                      height: 100,
-                      width: 100,
-                      fit: BoxFit.cover,
+                    SizedBox(height: 20),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children:
+                          selectedImages.map((path) {
+                            return Image.file(
+                              File(path),
+                              height: 80,
+                              width: 80,
+                              fit: BoxFit.cover,
+                            );
+                          }).toList(),
+                    ),
+                    SizedBox(height: 10),
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        await pickImages();
+                      },
+                      icon: Icon(Icons.image),
+                      label: Text("Select Images (max 5)"),
                     ),
                   ],
-                ],
+                ),
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text("Cancel"),
-              ),
-              TextButton(
-                onPressed: () {
-                  if (postController.text.isNotEmpty) {
-                    _addPost(postController.text);
-                  }
-                  Navigator.of(context).pop();
-                },
-                child: Text("Post"),
-              ),
-            ],
-          ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (postController.text.isNotEmpty) {
+                      _addPost(postController.text, selectedImages);
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: Text("Post"),
+                ),
+              ],
+            );
+          },
         );
       },
     );
