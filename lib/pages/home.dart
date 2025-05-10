@@ -214,7 +214,11 @@ class _HomeState extends State<Home> {
                   ),
                 ),
               ),
-              SizedBox(height: 10),
+
+            );
+          },
+        ),
+            SizedBox(height: 10),
             ],
           );
         },
