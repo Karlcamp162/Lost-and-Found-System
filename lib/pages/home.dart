@@ -13,6 +13,14 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final List<String> posts = [];
+
+  void _addPost(String post) {
+    setState(() {
+      posts.add(post);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,14 +30,13 @@ class _HomeState extends State<Home> {
         iconTheme: const IconThemeData(
           color: Colors.white, // Change the drawer icon color
         ),
-
       ),
       bottomNavigationBar: BottomNavigationWidget(),
       endDrawer: Drawer(
         child: ListView(
           children: [
             ListTile(
-              leading: Icon(Icons.design_services),
+              leading: Icon(Icons.dashboard_sharp),
               title: Text("My Post"),
               onTap: () {
                 Navigator.push(
@@ -39,7 +46,7 @@ class _HomeState extends State<Home> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.design_services),
+              leading: Icon(Icons.groups_3),
               title: Text("About Us"),
               onTap: () {
                 Navigator.push(
@@ -49,7 +56,7 @@ class _HomeState extends State<Home> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.design_services),
+              leading: Icon(Icons.settings),
               title: Text("Setting"),
               onTap: () {
                 Navigator.push(
@@ -59,7 +66,7 @@ class _HomeState extends State<Home> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.design_services),
+              leading: Icon(Icons.logout),
               title: Text("Log out"),
               onTap: () {
                 Navigator.push(
@@ -71,7 +78,104 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
-      body: SafeArea(child: Column()),
+      body: SafeArea(
+        child: ListView.builder(
+          itemCount: posts.length,
+          itemBuilder: (context, index) {
+            return ListTile(title: Text(posts[index]));
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _showAddPostDialog(context);
+        },
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+
+  void _showAddPostDialog(BuildContext context) {
+    final TextEditingController postController = TextEditingController();
+    String? selectedImage;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: AlertDialog(
+            title: Text("Post Lost Item"),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundImage: AssetImage("assets/avatar.png"),
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        "Username here",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 40),
+                  SafeArea(
+                    child: TextField(
+                      controller: postController,
+                      maxLines: 7,
+                      decoration: InputDecoration(
+                        hintText: "Where did the item last seen?",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        selectedImage = "assets/sample_image.png";
+                      });
+                    },
+                    icon: Icon(Icons.image),
+                    label: Text("Add Image"),
+                  ),
+                  if (selectedImage != null) ...[
+                    const SizedBox(height: 10),
+                    Image.asset(
+                      selectedImage!,
+                      height: 100,
+                      width: 100,
+                      fit: BoxFit.cover,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () {
+                  if (postController.text.isNotEmpty) {
+                    _addPost(postController.text);
+                  }
+                  Navigator.of(context).pop();
+                },
+                child: Text("Post"),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
