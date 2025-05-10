@@ -10,6 +10,10 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      body: Center(
+        child: Text("Lost and Found System", style: TextStyle(fontSize: 24)),
+      ),
+    );
   }
 }
