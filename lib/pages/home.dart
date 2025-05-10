@@ -27,6 +27,7 @@ class _HomeState extends State<Home> {
   void tabIndex(int index) {
     setState(() {
       _selectedIndex = index;
+      print("Selected index: $_selectedIndex");
     });
   }
 
@@ -38,6 +39,7 @@ class _HomeState extends State<Home> {
         'timestamp': timestamp,
         'likes': 0,
         'isLiked': false,
+        'likedBy': <String>[],
       });
     });
   }
@@ -66,7 +68,9 @@ class _HomeState extends State<Home> {
                         children: [
                           CircleAvatar(
                             radius: 29,
-                            backgroundImage: AssetImage("assets/avatar.png"),
+                            backgroundImage: AssetImage(
+                              "assets/images/image.png",
+                            ),
                           ),
                           SizedBox(width: 10),
                           Column(
@@ -150,8 +154,22 @@ class _HomeState extends State<Home> {
                                   setState(() {
                                     post['isLiked'] = !post['isLiked'];
                                     post['likes'] += post['isLiked'] ? 1 : -1;
+
+                                    // Simulated current user name
+                                    String currentUser = "Karl Louise Campos";
+
+                                    if (post['isLiked']) {
+                                      (post['likedBy'] as List<String>).add(
+                                        currentUser,
+                                      );
+                                    } else {
+                                      (post['likedBy'] as List<String>).remove(
+                                        currentUser,
+                                      );
+                                    }
                                   });
                                 },
+
                                 icon: Icon(
                                   post['isLiked']
                                       ? Icons.favorite
@@ -226,7 +244,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     final List<Widget> _currentTab = [
       _buildHomeTab(),
-      const Inbox(),
+      Inbox(likedPosts: posts),
       const Messages(),
       const Profile(),
     ];
@@ -290,7 +308,7 @@ class _HomeState extends State<Home> {
         ),
       ),
 
-      body: IndexedStack(index: _selectedIndex, children: _currentTab),
+      body: _currentTab[_selectedIndex],
 
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -342,7 +360,9 @@ class _HomeState extends State<Home> {
                       children: [
                         CircleAvatar(
                           radius: 29,
-                          backgroundImage: AssetImage("assets/avatar.png"),
+                          backgroundImage: AssetImage(
+                            "assets/images/image.png",
+                          ),
                         ),
                         SizedBox(width: 10),
                         Text(
