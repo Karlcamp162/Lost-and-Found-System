@@ -1,4 +1,5 @@
 import 'dart:io' show File;
+import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -29,9 +30,15 @@ class _HomeState extends State<Home> {
     });
   }
 
-  void _addPost(String post, List<String> imagePaths) {
+  void _addPost(String post, List<String> imagePaths, DateTime timestamp) {
     setState(() {
-      posts.add({'caption': post, 'images': imagePaths});
+      posts.add({
+        'caption': post,
+        'images': imagePaths,
+        'timestamp': timestamp,
+        'likes': 0,
+        'isLiked': false,
+      });
     });
   }
 
@@ -43,42 +50,172 @@ class _HomeState extends State<Home> {
         itemCount: posts.length,
         itemBuilder: (context, index) {
           final post = posts[index];
-          return Card(
-            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(post['caption'], style: TextStyle(fontSize: 16)),
-                  SizedBox(height: 10),
-                  if (post['images'] != null)
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children:
-                          (post['images'] as List<String>).map((path) {
-                            final file = File(path);
-                            if (file.existsSync()) {
-                              return Image.file(
-                                file,
-                                height: 80,
-                                width: 80,
-                                fit: BoxFit.cover,
+          final DateTime timestamp = post['timestamp'];
+          final String formattedTime = DateFormat('hh:mm a').format(timestamp);
+
+          return Column(
+            children: [
+              Card(
+                margin: EdgeInsets.only(left: 10, right: 10, top: 20),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 29,
+                            backgroundImage: AssetImage("assets/avatar.png"),
+                          ),
+                          SizedBox(width: 10),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Angel Kyle L. Alaba",
+                                style: TextStyle(fontWeight: FontWeight.w400),
+                              ),
+                              Text(
+                                formattedTime,
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 7),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.indigo.withOpacity(0.2),
+                            width: 1.0,
+                          ), // Set border color and width
+                          borderRadius: BorderRadius.circular(
+                            2.0,
+                          ), // Optional: Set border radius
+                        ),
+                        width: double.infinity,
+                        padding: EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              post['caption'],
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            SizedBox(height: 10),
+                            if (post['images'] != null)
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children:
+                                    (post['images'] as List<String>).map((
+                                      path,
+                                    ) {
+                                      final file = File(path);
+                                      if (file.existsSync()) {
+                                        return Image.file(
+                                          file,
+                                          height: 80,
+                                          width: 80,
+                                          fit: BoxFit.cover,
+                                        );
+                                      } else {
+                                        return Container(
+                                          width: 80,
+                                          height: 80,
+                                          color: Colors.grey[300],
+                                          child: Icon(Icons.broken_image),
+                                        );
+                                      }
+                                    }).toList(),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    post['isLiked'] = !post['isLiked'];
+                                    post['likes'] += post['isLiked'] ? 1 : -1;
+                                  });
+                                },
+                                icon: Icon(
+                                  post['isLiked']
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                ),
+                                color:
+                                    post['isLiked'] ? Colors.red : Colors.grey,
+                              ),
+                              Text("${post['likes']}"),
+                            ],
+                          ),
+
+                          SizedBox(width: 147),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Messages(),
+                                ),
                               );
-                            } else {
-                              return Container(
-                                width: 80,
-                                height: 80,
-                                color: Colors.grey[300],
-                                child: Icon(Icons.broken_image),
-                              );
-                            }
-                          }).toList(),
-                    ),
-                ],
+                            },
+                            label: Text("Message"),
+                            icon: Icon(Icons.message),
+
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color.fromRGBO(
+                                208,
+                                213,
+                                241,
+                                1,
+                              ),
+                              foregroundColor: Colors.black,
+                              // elevation: 2,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                              textStyle: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              side: BorderSide(
+                                color: const Color.fromRGBO(
+                                  208,
+                                  208,
+                                  208,
+                                  1,
+                                ).withOpacity(0.5), // Subtle border color
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
+              SizedBox(height: 10),
+            ],
           );
         },
       ),
@@ -167,6 +304,7 @@ class _HomeState extends State<Home> {
   void _showAddPostDialog(BuildContext context) {
     final TextEditingController postController = TextEditingController();
     List<String> selectedImages = [];
+    final String formattedTime = DateFormat('hh:mm a').format(DateTime.now());
 
     showDialog(
       context: context,
@@ -255,7 +393,8 @@ class _HomeState extends State<Home> {
                 TextButton(
                   onPressed: () {
                     if (postController.text.isNotEmpty) {
-                      _addPost(postController.text, selectedImages);
+                      final DateTime now = DateTime.now();
+                      _addPost(postController.text, selectedImages, now);
                       Navigator.of(context).pop();
                     }
                   },
