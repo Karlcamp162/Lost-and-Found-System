@@ -10,6 +10,10 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      body: Column(
+        children: [Text("data1"), Text("data2"), Text("Date3"), Text("data4")],
+      ),
+    );
   }
 }
