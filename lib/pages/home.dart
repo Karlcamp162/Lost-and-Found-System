@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lost_and_found_system/components/bottom_navigation_widget.dart';
+import 'package:lost_and_found_system/pages/inbox.dart';
 import 'package:lost_and_found_system/pages/loginPage.dart';
+import 'package:lost_and_found_system/pages/messages.dart';
+import 'package:lost_and_found_system/pages/profile.dart';
 import 'package:lost_and_found_system/profileNavigations/aboutUs.dart';
 import 'package:lost_and_found_system/profileNavigations/mypost.dart';
 import 'package:lost_and_found_system/profileNavigations/settings.dart';
@@ -13,6 +16,21 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  int _selectedIndex = 0;
+
+  final List <Widget> _currentTab = [
+    Home(),
+    Inbox(),
+    Messages(),
+    Profile()
+  ];
+
+  void tabIndex(int index){
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +42,7 @@ class _HomeState extends State<Home> {
         ),
 
       ),
-      bottomNavigationBar: BottomNavigationWidget(),
+      bottomNavigationBar: BottomNavigationWidget(tabIndex: tabIndex,colorIndex: _selectedIndex),
       endDrawer: Drawer(
         child: ListView(
           children: [
