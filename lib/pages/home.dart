@@ -15,6 +15,7 @@ class _HomeState extends State<Home> {
         title: const Text("Home", style: TextStyle(color: Colors.white)),
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
+      body: SafeArea(child: Column()),
     );
   }
 }
