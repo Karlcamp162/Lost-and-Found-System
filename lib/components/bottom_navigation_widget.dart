@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
-class BottomNavigationWidget extends StatefulWidget {
-  const BottomNavigationWidget({super.key});
+class BottomNavigationWidget extends StatelessWidget {
+  final int colorIndex;
+  final Function(int) tabIndex;
 
-  @override
-  State<BottomNavigationWidget> createState() => _BottomNavigationWidgetState();
-}
+  const BottomNavigationWidget({
+    Key? key,
+    required this.tabIndex,
+    required this.colorIndex,
+}): super(key: key);
 
-class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
@@ -16,11 +18,17 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          IconButton(icon: Icon(Icons.home), onPressed: () {}),
-          IconButton(icon: Icon(Icons.notifications), onPressed: () {}),
+          IconButton(icon: Icon(Icons.home), onPressed: () => tabIndex(0)),
+          IconButton(
+            icon: Icon(Icons.notifications),
+            onPressed: () => {tabIndex(1)},
+          ),
           SizedBox(width: 40.0),
-          IconButton(icon: Icon(Icons.chat), onPressed: () {}),
-          IconButton(icon: Icon(Icons.person), onPressed: () {}),
+          IconButton(icon: Icon(Icons.chat), onPressed: () => {tabIndex(2)}),
+          IconButton(
+            icon: Icon(Icons.person),
+            onPressed: () => {tabIndex(3)},
+          ),
         ],
       ),
     );

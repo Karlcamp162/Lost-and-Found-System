@@ -3,7 +3,10 @@ import 'dart:io' show File;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lost_and_found_system/components/bottom_navigation_widget.dart';
+import 'package:lost_and_found_system/pages/inbox.dart';
 import 'package:lost_and_found_system/pages/loginPage.dart';
+import 'package:lost_and_found_system/pages/messages.dart';
+import 'package:lost_and_found_system/pages/profile.dart';
 import 'package:lost_and_found_system/profileNavigations/aboutUs.dart';
 import 'package:lost_and_found_system/profileNavigations/mypost.dart';
 import 'package:lost_and_found_system/profileNavigations/settings.dart';
@@ -16,6 +19,14 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  int _selectedIndex = 0;
+
+  void tabIndex(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   final List<String> posts = [];
 
   void _addPost(String post) {
@@ -23,8 +34,31 @@ class _HomeState extends State<Home> {
       posts.add(post);
     });
   }
-
+  late final List<Widget> _currentTab;
   @override
+  void initState() {
+    super.initState();
+    _currentTab = [
+      _buildHomeTab(),
+      const Inbox(),
+      const Messages(),
+      const Profile(),
+    ];
+  }
+  Widget _buildHomeTab() {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 56.0),
+        child: ListView.builder(
+          itemCount: posts.length,
+          itemBuilder: (context, index) {
+            return ListTile(title: Text(posts[index]));
+          },
+        ),
+      ),
+    );
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -34,7 +68,10 @@ class _HomeState extends State<Home> {
           color: Colors.white, // Change the drawer icon color
         ),
       ),
-      bottomNavigationBar: BottomNavigationWidget(),
+      bottomNavigationBar: BottomNavigationWidget(
+        tabIndex: tabIndex,
+        colorIndex: _selectedIndex,
+      ),
       endDrawer: Drawer(
         child: ListView(
           children: [
@@ -81,13 +118,9 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
-      body: SafeArea(
-        child: ListView.builder(
-          itemCount: posts.length,
-          itemBuilder: (context, index) {
-            return ListTile(title: Text(posts[index]));
-          },
-        ),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _currentTab,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -196,3 +229,6 @@ class _HomeState extends State<Home> {
     );
   }
 }
+
+
+
