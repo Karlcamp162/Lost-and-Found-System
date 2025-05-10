@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lost_and_found_system/components/bottom_navigation_widget.dart';
 import 'package:lost_and_found_system/pages/loginPage.dart';
 import 'package:lost_and_found_system/profileNavigations/aboutUs.dart';
 import 'package:lost_and_found_system/profileNavigations/mypost.dart';
@@ -29,7 +30,9 @@ class _HomeState extends State<Home> {
         iconTheme: const IconThemeData(
           color: Colors.white, // Change the drawer icon color
         ),
+
       ),
+      bottomNavigationBar: BottomNavigationWidget(),
       endDrawer: Drawer(
         child: ListView(
           children: [
