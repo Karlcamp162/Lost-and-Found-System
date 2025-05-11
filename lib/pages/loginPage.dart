@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lost_and_found_system/pages/home.dart'; // Import your Home page
+import 'package:lost_and_found_system/pages/home.dart';
+import 'package:lost_and_found_system/pages/registerPage.dart'; // Import your Home page
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -9,14 +10,15 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _studentIdController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  //username, password, id_number, course,
 
   void _handleLogin() {
-    String username = _usernameController.text.trim();
+    String studentId = _studentIdController.text.trim();
     String password = _passwordController.text;
 
-    if (username.isEmpty || password.isEmpty) {
+    if (studentId.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Please enter both username and password")),
       );
@@ -25,12 +27,12 @@ class _LoginState extends State<Login> {
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => Home(currentUserName: username)),
+      MaterialPageRoute(builder: (context) => Home(currentUserName: studentId)),
     );
   }
 
   void _clearFields() {
-    _usernameController.clear();
+    _studentIdController.clear();
     _passwordController.clear();
   }
 
@@ -76,9 +78,9 @@ class _LoginState extends State<Login> {
                 ),
                 const SizedBox(height: 30),
                 TextField(
-                  controller: _usernameController,
+                  controller: _studentIdController,
                   decoration: InputDecoration(
-                    hintText: 'Enter your Username',
+                    hintText: 'Enter your Student ID',
                     prefixIcon: Icon(Icons.person),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(17),
@@ -136,7 +138,15 @@ class _LoginState extends State<Login> {
                   children: [
                     const Text("Don't have an account? "),
                     TextButton(
-                      onPressed: () {},
+                      onPressed:
+                          () => {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RegisterPage(),
+                              ),
+                            ),
+                          },
                       child: const Text(
                         "Register Here",
                         style: TextStyle(color: Colors.blue),
