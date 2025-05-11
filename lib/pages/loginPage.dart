@@ -27,24 +27,29 @@ class _LoginState extends State<Login> {
 
     // Check if user exists
     final user = UserService().users.firstWhere(
-          (u) => u.studentId == studentId && u.password == password,
-      orElse: null
+      (u) => u.studentId == studentId && u.password == password,
+      orElse: null,
     );
 
     if (user != null) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => Home(currentUserName: user.name, currentStudentId: user.studentId,),
+          builder:
+              (context) => Home(
+                currentUserName: user.name,
+                currentStudentId: user.studentId,
+                studentDepartmentName: user.department,
+                studentCourseName: user.course,
+              ),
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Invalid Student ID or Password")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Invalid Student ID or Password")));
     }
   }
-
 
   void _clearFields() {
     _studentIdController.clear();
