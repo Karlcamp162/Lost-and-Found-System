@@ -48,15 +48,20 @@ class _LoginPageState extends State<LoginPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Invalid Student ID or Password")));
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Home(currentUserName: user.name, currentStudentId: user.studentId, studentDepartmentName: user.department, studentCourseName: user.course,),
-      ),
-    );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder:
+              (context) => Home(
+                currentUserName: user.name,
+                currentStudentId: user.studentId,
+                studentDepartmentName: user.department,
+                studentCourseName: user.course,
+              ),
+        ),
+      );
     }
   }
-
 
   void _clearFields() {
     _studentIdController.clear();

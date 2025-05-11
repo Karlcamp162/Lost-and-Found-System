@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lost_and_found_system/pages/loginPage.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -182,7 +183,16 @@ class _RegisterPageState extends State<RegisterPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
-                      onPressed: registerUser,
+                      onPressed:
+                          () {
+                            registerUser();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LoginPage(),
+                              ),
+                            );
+                          },
                       child: const Text("Register"),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
