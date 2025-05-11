@@ -5,10 +5,10 @@ class BottomNavigationWidget extends StatelessWidget {
   final Function(int) tabIndex;
 
   const BottomNavigationWidget({
-    Key? key,
+    super.key,
     required this.tabIndex,
     required this.colorIndex,
-}): super(key: key);
+});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class BottomNavigationWidget extends StatelessWidget {
             onPressed: () => {tabIndex(1)},
           ),
           SizedBox(width: 40.0),
-          IconButton(icon: Icon(Icons.chat), onPressed: () => {tabIndex(2)}),
+          IconButton(icon: Icon(Icons.color_lens), onPressed: () => {tabIndex(2)}),
           IconButton(
             icon: Icon(Icons.person),
             onPressed: () => {tabIndex(3)},
