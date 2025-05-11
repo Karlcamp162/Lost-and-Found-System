@@ -13,7 +13,8 @@ import 'package:lost_and_found_system/profileNavigations/mypost.dart';
 import 'package:lost_and_found_system/profileNavigations/settings.dart';
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  final String currentUserName;
+  const Home({super.key, required this.currentUserName});
 
   @override
   State<Home> createState() => _HomeState();
@@ -21,8 +22,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final List<Map<String, dynamic>> posts = [];
-
   int _selectedIndex = 0;
+  String get currentUser => widget.currentUserName;
 
   void tabIndex(int index) {
     setState(() {
@@ -78,7 +79,7 @@ class _HomeState extends State<Home> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Angel Kyle L. Alaba",
+                                currentUser,
                                 style: TextStyle(fontWeight: FontWeight.w400),
                               ),
                               Text(
@@ -156,16 +157,21 @@ class _HomeState extends State<Home> {
                                     post['likes'] += post['isLiked'] ? 1 : -1;
 
                                     // Simulated current user name
-                                    String currentUser = "Karl Louise Campos";
+
+                                    if (post['likedBy'] == null ||
+                                        post['likedBy'] is! List) {
+                                      post['likedBy'] = <String>[];
+                                    }
+
+                                    final likedBy =
+                                        post['likedBy'] as List<String>;
 
                                     if (post['isLiked']) {
-                                      (post['likedBy'] as List<String>).add(
-                                        currentUser,
-                                      );
+                                      if (!likedBy.contains(currentUser)) {
+                                        likedBy.add(currentUser);
+                                      }
                                     } else {
-                                      (post['likedBy'] as List<String>).remove(
-                                        currentUser,
-                                      );
+                                      likedBy.remove(currentUser);
                                     }
                                   });
                                 },
@@ -240,14 +246,31 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Widget _getTab(int index) {
+    switch (index) {
+      case 0:
+        return _buildHomeTab();
+      case 1:
+        return Inbox(
+          likedPosts: posts,
+        ); // This ensures it always gets updated posts
+      case 2:
+        return const Messages();
+      case 3:
+        return const Profile();
+      default:
+        return _buildHomeTab();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final List<Widget> _currentTab = [
-      _buildHomeTab(),
-      Inbox(likedPosts: posts),
-      const Messages(),
-      const Profile(),
-    ];
+    // final List<Widget> _currentTab = [
+    //   _buildHomeTab(),
+    //   Inbox(likedPosts: posts),
+    //   const Messages(),
+    //   const Profile(),
+    // ];
 
     return Scaffold(
       appBar: AppBar(
@@ -308,7 +331,7 @@ class _HomeState extends State<Home> {
         ),
       ),
 
-      body: _currentTab[_selectedIndex],
+      body: _getTab(_selectedIndex),
 
       floatingActionButton: FloatingActionButton(
         onPressed: () {
