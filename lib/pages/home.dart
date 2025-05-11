@@ -11,6 +11,7 @@ import 'package:lost_and_found_system/profileNavigations/aboutUs.dart';
 import 'package:lost_and_found_system/profileNavigations/contactUs.dart';
 import 'package:lost_and_found_system/profileNavigations/privacy.dart';
 import 'package:lost_and_found_system/profileNavigations/sendFeedback.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Home extends StatefulWidget {
   final String currentUserName;
@@ -223,7 +224,7 @@ class _HomeState extends State<Home> {
 
                           SizedBox(width: 147),
                           ElevatedButton.icon(
-                            onPressed: () {},
+                            onPressed: () {launchUrl(Uri.parse('https://www.facebook.com/angel.alaba.13'));},
                             label: Text("Message"),
                             icon: Icon(Icons.message),
                             style: ElevatedButton.styleFrom(

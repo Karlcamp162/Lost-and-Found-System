@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class Preference extends StatefulWidget {
-
   const Preference({super.key});
 
   @override
@@ -11,24 +10,15 @@ class Preference extends StatefulWidget {
 class _PreferenceState extends State<Preference> {
   final themeNames = AppThemes.themes.keys.toList();
 
-  final themeColors = {
-    'Original': const Color.fromRGBO(209, 175, 247, 1),
-    'Light': Colors.white,
-    'Dark': Colors.grey[850]!,
-    'Red': Colors.red,
-    'Green': Colors.green,
-    'Blue': Colors.blue,
-  };
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Preferences')),
+      appBar: AppBar(title: const Text('Theme Preferences')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
           itemCount: themeNames.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             mainAxisSpacing: 16,
             crossAxisSpacing: 16,
@@ -36,34 +26,52 @@ class _PreferenceState extends State<Preference> {
           ),
           itemBuilder: (context, index) {
             final name = themeNames[index];
-            final color = themeColors[name]!;
+            final theme = AppThemes.themes[name]!;
+            final scheme = theme.colorScheme;
+
             return GestureDetector(
               onTap: () {
                 ThemeController.setTheme(name);
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: color,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: Colors.black12, width: 2),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black26,
                       blurRadius: 4,
-                      offset: Offset(2, 2),
+                      offset: const Offset(2, 2),
                     ),
                   ],
                 ),
-                child: Center(
-                  child: Text(
-                    name,
-                    style: TextStyle(
-                      color: (name == 'Light' || name == 'Original')
-                          ? Colors.black
-                          : Colors.white,
-                      fontWeight: FontWeight.bold,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(child: Container(color: scheme.primary)),
+                        Expanded(child: Container(color: scheme.secondary)),
+                        Expanded(child: Container(color: scheme.tertiary ?? scheme.background)),
+                      ],
                     ),
-                  ),
+                    Text(
+                      name,
+                      style: TextStyle(
+                        color: scheme.onPrimary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        shadows: [
+                          const Shadow(
+                            color: Colors.black45,
+                            blurRadius: 4,
+                            offset: Offset(1, 1),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );
@@ -82,26 +90,26 @@ class AppThemes {
       ),
       useMaterial3: true,
     ),
-    'Light': ThemeData(
+    'Classic Light': ThemeData(
       colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
       useMaterial3: true,
     ),
-    'Dark': ThemeData(
+    'Midnight': ThemeData(
       colorScheme: ColorScheme.fromSeed(
         seedColor: Colors.grey[900]!,
         brightness: Brightness.dark,
       ),
       useMaterial3: true,
     ),
-    'Red': ThemeData(
+    'Cherry': ThemeData(
       colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
       useMaterial3: true,
     ),
-    'Green': ThemeData(
+    'Forest': ThemeData(
       colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
       useMaterial3: true,
     ),
-    'Blue': ThemeData(
+    'Ocean': ThemeData(
       colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       useMaterial3: true,
     ),
