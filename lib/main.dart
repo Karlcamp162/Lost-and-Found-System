@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lost_and_found_system/pages/home.dart';
+import 'package:lost_and_found_system/pages/loginPage.dart';
 
 void main() {
   runApp(Lost_And_Found_System());
@@ -18,7 +19,7 @@ class _Lost_And_Found_SystemState extends State<Lost_And_Found_System> {
     return MaterialApp(
       title: "Lost and Found System",
       debugShowCheckedModeBanner: false,
-      home: Home(),
+      home: Login(),
 
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(

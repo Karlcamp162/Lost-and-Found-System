@@ -11,21 +11,13 @@ class Inbox extends StatefulWidget {
 
 class _InboxState extends State<Inbox> {
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    // Filter posts that have at least one like (likedBy is a List<String>)
+    // Filter posts that have at least one like
     final likedPosts =
-        widget.likedPosts
-            .where(
-              (post) =>
-                  post['likedBy'] != null &&
-                  (post['likedBy'] as List).isNotEmpty,
-            )
-            .toList();
+        widget.likedPosts.where((post) {
+          final likedBy = post['likedBy'];
+          return likedBy is List && likedBy.isNotEmpty;
+        }).toList();
 
     return Scaffold(
       appBar: AppBar(title: const Text("Inbox")),
@@ -37,24 +29,23 @@ class _InboxState extends State<Inbox> {
                 itemBuilder: (context, index) {
                   final post = likedPosts[index];
                   final caption = post['caption'] ?? '';
-                  // Ensure likedBy is safely cast to List<String>
-                  final likedBy = (post['likedBy'] ?? []).cast<String>();
-
-                  // Directly mapping likedBy to a List<Widget>
-                  List<Widget> likeNotifications =
-                      likedBy.map((user) {
-                        return ListTile(
-                          leading: const Icon(
-                            Icons.favorite,
-                            color: Colors.red,
-                          ),
-                          title: Text("$user liked your post"),
-                          subtitle: Text(caption),
-                        );
-                      }).toList();
+                  final likedBy =
+                      (post['likedBy'] as List<dynamic>)
+                          .map((e) => e.toString())
+                          .toList();
 
                   return Column(
-                    children: likeNotifications, // Assign the List<Widget> here
+                    children:
+                        likedBy.map<Widget>((user) {
+                          return ListTile(
+                            leading: const Icon(
+                              Icons.favorite,
+                              color: Colors.red,
+                            ),
+                            title: Text("$user liked your post"),
+                            subtitle: Text(caption),
+                          );
+                        }).toList(),
                   );
                 },
               ),
