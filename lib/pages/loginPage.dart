@@ -35,7 +35,7 @@ class _LoginState extends State<Login> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => Home(currentUserName: user.name),
+          builder: (context) => Home(currentUserName: user.name, currentStudentId: user.studentId,),
         ),
       );
     } else {
@@ -151,7 +151,7 @@ class _LoginState extends State<Login> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Don't have an account? "),
+                    const Text("Don't have an studentIdaccount? "),
                     TextButton(
                       onPressed:
                           () => {

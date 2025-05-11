@@ -1,6 +1,5 @@
 import 'dart:io' show File;
 import 'package:intl/intl.dart';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lost_and_found_system/components/bottom_navigation_widget.dart';
@@ -14,7 +13,9 @@ import 'package:lost_and_found_system/profileNavigations/settings.dart';
 
 class Home extends StatefulWidget {
   final String currentUserName;
-  const Home({super.key, required this.currentUserName});
+  final String currentStudentId; // Added this line to pass studentId
+
+  const Home({super.key, required this.currentUserName, required this.currentStudentId});
 
   @override
   State<Home> createState() => _HomeState();
@@ -24,12 +25,29 @@ class _HomeState extends State<Home> {
   final List<Map<String, dynamic>> posts = [];
   int _selectedIndex = 0;
   String get currentUser => widget.currentUserName;
+  String get currentStudent => widget.currentStudentId; // Access studentId
+
   final ScrollController _scrollController = ScrollController();
   String? selectedPostId;
+  String _title = "";
 
   void tabIndex(int index) {
     setState(() {
       _selectedIndex = index;
+      switch (index) {
+        case 0:
+          _title = "Home";
+          break;
+        case 1:
+          _title = "Notifications";
+          break;
+        case 2:
+          _title = "Messages";
+          break;
+        case 3:
+          _title = "Profile";
+          break;
+      }
       print("Selected index: $_selectedIndex");
     });
   }
@@ -125,26 +143,24 @@ class _HomeState extends State<Home> {
                                 spacing: 8,
                                 runSpacing: 8,
                                 children:
-                                    (post['images'] as List<String>).map((
-                                      path,
-                                    ) {
-                                      final file = File(path);
-                                      if (file.existsSync()) {
-                                        return Image.file(
-                                          file,
-                                          height: 80,
-                                          width: 80,
-                                          fit: BoxFit.cover,
-                                        );
-                                      } else {
-                                        return Container(
-                                          width: 80,
-                                          height: 80,
-                                          color: Colors.grey[300],
-                                          child: Icon(Icons.broken_image),
-                                        );
-                                      }
-                                    }).toList(),
+                                (post['images'] as List<String>).map((path) {
+                                  final file = File(path);
+                                  if (file.existsSync()) {
+                                    return Image.file(
+                                      file,
+                                      height: 80,
+                                      width: 80,
+                                      fit: BoxFit.cover,
+                                    );
+                                  } else {
+                                    return Container(
+                                      width: 80,
+                                      height: 80,
+                                      color: Colors.grey[300],
+                                      child: Icon(Icons.broken_image),
+                                    );
+                                  }
+                                }).toList(),
                               ),
                           ],
                         ),
@@ -161,14 +177,13 @@ class _HomeState extends State<Home> {
                                     post['likes'] += post['isLiked'] ? 1 : -1;
 
                                     // Simulated current user name
-
                                     if (post['likedBy'] == null ||
                                         post['likedBy'] is! List) {
                                       post['likedBy'] = <String>[];
                                     }
 
                                     final likedBy =
-                                        post['likedBy'] as List<String>;
+                                    post['likedBy'] as List<String>;
 
                                     if (post['isLiked']) {
                                       if (!likedBy.contains(currentUser)) {
@@ -186,7 +201,7 @@ class _HomeState extends State<Home> {
                                       : Icons.favorite_border,
                                 ),
                                 color:
-                                    post['isLiked'] ? Colors.red : Colors.grey,
+                                post['isLiked'] ? Colors.red : Colors.grey,
                               ),
                               Text("${post['likes']}"),
                             ],
@@ -213,7 +228,6 @@ class _HomeState extends State<Home> {
                                 1,
                               ),
                               foregroundColor: Colors.black,
-                              // elevation: 2,
                               padding: EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 10,
@@ -231,7 +245,7 @@ class _HomeState extends State<Home> {
                                   208,
                                   208,
                                   1,
-                                ).withOpacity(0.5), // Subtle border color
+                                ).withOpacity(0.5),
                                 width: 1,
                               ),
                             ),
@@ -275,11 +289,11 @@ class _HomeState extends State<Home> {
               }
             });
           },
-        ); // This ensures it always gets updated posts
+        );
       case 2:
-        return const Messages();
+        return Messages();
       case 3:
-        return const Profile();
+        return Profile(currentUserName: currentUser, studentId: currentStudent); // Pass studentId to Profile
       default:
         return _buildHomeTab();
     }
@@ -287,16 +301,9 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // final List<Widget> _currentTab = [
-    //   _buildHomeTab(),
-    //   Inbox(likedPosts: posts),
-    //   const Messages(),
-    //   const Profile(),
-    // ];
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Home", style: TextStyle(color: Colors.white)),
+        title: Text(_title, style: TextStyle(color: Colors.white)),
         backgroundColor: Theme.of(context).colorScheme.primary,
         iconTheme: const IconThemeData(
           color: Colors.white, // Change the drawer icon color
@@ -362,7 +369,6 @@ class _HomeState extends State<Home> {
         child: Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-
     );
   }
 
