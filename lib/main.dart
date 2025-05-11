@@ -1,32 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:lost_and_found_system/pages/home.dart';
+import 'package:lost_and_found_system/pages/preference.dart';
 import 'package:lost_and_found_system/pages/loginPage.dart';
 
+
 void main() {
-  runApp(Lost_And_Found_System());
+  runApp(const LostAndFoundSystem());
 }
 
-class Lost_And_Found_System extends StatefulWidget {
-  const Lost_And_Found_System({super.key});
+class LostAndFoundSystem extends StatelessWidget {
+  const LostAndFoundSystem({super.key});
 
-  @override
-  State<Lost_And_Found_System> createState() => _Lost_And_Found_SystemState();
-}
-
-class _Lost_And_Found_SystemState extends State<Lost_And_Found_System> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "Lost and Found System",
-      debugShowCheckedModeBanner: false,
-      home: Login(),
-
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromRGBO(209, 175, 247, 1),
-        ),
-        useMaterial3: true,
-      ),
+    return ValueListenableBuilder<ThemeData>(
+      valueListenable: ThemeController.currentTheme,
+      builder: (context, theme, _) {
+        return MaterialApp(
+          title: "Lost and Found System",
+          debugShowCheckedModeBanner: false,
+          theme: theme,
+          home: LoginPage(),
+        );
+      },
     );
   }
 }

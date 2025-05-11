@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:lost_and_found_system/pages/home.dart';
 import 'package:lost_and_found_system/pages/registerPage.dart'; // Import your Home page
 
-class Login extends StatefulWidget {
-  const Login({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginState extends State<Login> {
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController _studentIdController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   //username, password, id_number, course,
@@ -31,19 +31,13 @@ class _LoginState extends State<Login> {
       orElse: null
     );
 
-    if (user != null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Home(currentUserName: user.name, currentStudentId: user.studentId,),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Invalid Student ID or Password")),
-      );
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Home(currentUserName: user.name, currentStudentId: user.studentId,),
+      ),
+    );
     }
-  }
 
 
   void _clearFields() {
@@ -120,7 +114,6 @@ class _LoginState extends State<Login> {
                   children: [
                     ElevatedButton(
                       onPressed: _handleLogin,
-                      child: const Text("Login"),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 30,
@@ -130,11 +123,11 @@ class _LoginState extends State<Login> {
                           borderRadius: BorderRadius.circular(10.0),
                         ),
                       ),
+                      child: const Text("Login"),
                     ),
                     const SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: _clearFields,
-                      child: const Text("Clear"),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 30,
@@ -144,6 +137,7 @@ class _LoginState extends State<Login> {
                           borderRadius: BorderRadius.circular(10.0),
                         ),
                       ),
+                      child: const Text("Clear"),
                     ),
                   ],
                 ),
