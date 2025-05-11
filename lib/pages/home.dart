@@ -24,6 +24,8 @@ class _HomeState extends State<Home> {
   final List<Map<String, dynamic>> posts = [];
   int _selectedIndex = 0;
   String get currentUser => widget.currentUserName;
+  final ScrollController _scrollController = ScrollController();
+  String? selectedPostId;
 
   void tabIndex(int index) {
     setState(() {
@@ -35,6 +37,7 @@ class _HomeState extends State<Home> {
   void _addPost(String post, List<String> imagePaths, DateTime timestamp) {
     setState(() {
       posts.add({
+        'id': DateTime.now().millisecondsSinceEpoch.toString(),
         'caption': post,
         'images': imagePaths,
         'timestamp': timestamp,
@@ -50,6 +53,7 @@ class _HomeState extends State<Home> {
   Widget _buildHomeTab() {
     return SafeArea(
       child: ListView.builder(
+        controller: _scrollController,
         itemCount: posts.length,
         itemBuilder: (context, index) {
           final post = posts[index];
@@ -253,6 +257,24 @@ class _HomeState extends State<Home> {
       case 1:
         return Inbox(
           likedPosts: posts,
+          onSeeMore: (postId) {
+            setState(() {
+              selectedPostId = postId;
+              _selectedIndex = 0; // switch to Home tab
+            });
+
+            // Wait for frame render then scroll
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final index = posts.indexWhere((p) => p['id'] == postId);
+              if (index != -1) {
+                _scrollController.animateTo(
+                  index * 280.0, // estimated height per post
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeInOut,
+                );
+              }
+            });
+          },
         ); // This ensures it always gets updated posts
       case 2:
         return const Messages();
