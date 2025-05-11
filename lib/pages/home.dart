@@ -8,14 +8,19 @@ import 'package:lost_and_found_system/pages/loginPage.dart';
 import 'package:lost_and_found_system/pages/messages.dart';
 import 'package:lost_and_found_system/pages/profile.dart';
 import 'package:lost_and_found_system/profileNavigations/aboutUs.dart';
-import 'package:lost_and_found_system/profileNavigations/mypost.dart';
-import 'package:lost_and_found_system/profileNavigations/settings.dart';
+import 'package:lost_and_found_system/profileNavigations/contactUs.dart';
+import 'package:lost_and_found_system/profileNavigations/privacy.dart';
+import 'package:lost_and_found_system/profileNavigations/sendFeedback.dart';
 
 class Home extends StatefulWidget {
   final String currentUserName;
   final String currentStudentId; // Added this line to pass studentId
 
-  const Home({super.key, required this.currentUserName, required this.currentStudentId});
+  const Home({
+    super.key,
+    required this.currentUserName,
+    required this.currentStudentId,
+  });
 
   @override
   State<Home> createState() => _HomeState();
@@ -143,24 +148,26 @@ class _HomeState extends State<Home> {
                                 spacing: 8,
                                 runSpacing: 8,
                                 children:
-                                (post['images'] as List<String>).map((path) {
-                                  final file = File(path);
-                                  if (file.existsSync()) {
-                                    return Image.file(
-                                      file,
-                                      height: 80,
-                                      width: 80,
-                                      fit: BoxFit.cover,
-                                    );
-                                  } else {
-                                    return Container(
-                                      width: 80,
-                                      height: 80,
-                                      color: Colors.grey[300],
-                                      child: Icon(Icons.broken_image),
-                                    );
-                                  }
-                                }).toList(),
+                                    (post['images'] as List<String>).map((
+                                      path,
+                                    ) {
+                                      final file = File(path);
+                                      if (file.existsSync()) {
+                                        return Image.file(
+                                          file,
+                                          height: 80,
+                                          width: 80,
+                                          fit: BoxFit.cover,
+                                        );
+                                      } else {
+                                        return Container(
+                                          width: 80,
+                                          height: 80,
+                                          color: Colors.grey[300],
+                                          child: Icon(Icons.broken_image),
+                                        );
+                                      }
+                                    }).toList(),
                               ),
                           ],
                         ),
@@ -183,7 +190,7 @@ class _HomeState extends State<Home> {
                                     }
 
                                     final likedBy =
-                                    post['likedBy'] as List<String>;
+                                        post['likedBy'] as List<String>;
 
                                     if (post['isLiked']) {
                                       if (!likedBy.contains(currentUser)) {
@@ -201,7 +208,7 @@ class _HomeState extends State<Home> {
                                       : Icons.favorite_border,
                                 ),
                                 color:
-                                post['isLiked'] ? Colors.red : Colors.grey,
+                                    post['isLiked'] ? Colors.red : Colors.grey,
                               ),
                               Text("${post['likes']}"),
                             ],
@@ -293,7 +300,10 @@ class _HomeState extends State<Home> {
       case 2:
         return Messages();
       case 3:
-        return Profile(currentUserName: currentUser, studentId: currentStudent); // Pass studentId to Profile
+        return Profile(
+          currentUserName: currentUser,
+          studentId: currentStudent,
+        ); // Pass studentId to Profile
       default:
         return _buildHomeTab();
     }
@@ -317,32 +327,42 @@ class _HomeState extends State<Home> {
         child: ListView(
           children: [
             ListTile(
-              leading: Icon(Icons.dashboard_sharp),
-              title: Text("My Post"),
+              leading: Icon(Icons.phone_android),
+              title: Text("About the App"),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => MyPost()),
+                  MaterialPageRoute(builder: (context) => AboutApp()),
                 );
               },
             ),
             ListTile(
-              leading: Icon(Icons.groups_3),
-              title: Text("About Us"),
+              leading: Icon(Icons.data_usage),
+              title: Text("Data and Privacy"),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AboutUs()),
+                  MaterialPageRoute(builder: (context) => Privacy()),
                 );
               },
             ),
             ListTile(
-              leading: Icon(Icons.settings),
-              title: Text("Setting"),
+              leading: Icon(Icons.report_gmailerrorred),
+              title: Text("Contact Us"),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Settings()),
+                  MaterialPageRoute(builder: (context) => ContactUs()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.feedback_outlined),
+              title: Text("Send Feedback"),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SendFeedback()),
                 );
               },
             ),
