@@ -361,6 +361,8 @@ class _HomeState extends State<Home> {
         },
         child: Icon(Icons.add),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
     );
   }
 
