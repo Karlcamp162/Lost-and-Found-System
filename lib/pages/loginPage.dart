@@ -51,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => Home(currentUserName: user.name, currentStudentId: user.studentId,),
+        builder: (context) => Home(currentUserName: user.name, currentStudentId: user.studentId, studentDepartmentName: user.department, studentCourseName: user.course,),
       ),
     );
     }
