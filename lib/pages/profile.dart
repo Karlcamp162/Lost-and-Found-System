@@ -170,7 +170,7 @@ class _ProfileState extends State<Profile> {
                   onTap: () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => Login()),
+                      MaterialPageRoute(builder: (context) => LoginPage()),
                     );
                   },
                 ),

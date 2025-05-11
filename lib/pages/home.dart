@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lost_and_found_system/components/bottom_navigation_widget.dart';
 import 'package:lost_and_found_system/pages/inbox.dart';
 import 'package:lost_and_found_system/pages/loginPage.dart';
-import 'package:lost_and_found_system/pages/messages.dart';
+import 'package:lost_and_found_system/pages/preference.dart';
 import 'package:lost_and_found_system/pages/profile.dart';
 import 'package:lost_and_found_system/profileNavigations/aboutUs.dart';
 import 'package:lost_and_found_system/profileNavigations/contactUs.dart';
@@ -32,6 +32,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final List<Map<String, dynamic>> posts = [];
+
   int _selectedIndex = 0;
   String get currentUser => widget.currentUserName;
   String get currentStudent => widget.currentStudentId; // Access studentId
@@ -53,13 +54,13 @@ class _HomeState extends State<Home> {
           _title = "Notifications";
           break;
         case 2:
-          _title = "Messages";
+          _title = "Preference";
           break;
         case 3:
           _title = "Profile";
           break;
       }
-      print("Selected index: $_selectedIndex");
+
     });
   }
 
@@ -73,11 +74,11 @@ class _HomeState extends State<Home> {
         'likes': 0,
         'isLiked': false,
         'likedBy': <String>[],
+        'authorName': currentUser,
+        'authorId': currentStudent,
       });
     });
   }
-
-  late final List<Widget> _currentTab;
 
   Widget _buildHomeTab() {
     return SafeArea(
@@ -222,17 +223,9 @@ class _HomeState extends State<Home> {
 
                           SizedBox(width: 147),
                           ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Messages(),
-                                ),
-                              );
-                            },
+                            onPressed: () {},
                             label: Text("Message"),
                             icon: Icon(Icons.message),
-
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color.fromRGBO(
                                 208,
@@ -304,7 +297,7 @@ class _HomeState extends State<Home> {
           },
         );
       case 2:
-        return Messages();
+        return Preference();
       case 3:
         return Profile(
           currentUserName: currentUser,
@@ -312,6 +305,7 @@ class _HomeState extends State<Home> {
           studentDepartmentName: studentDepartment,
           studentCourseName: studentCourse,
         ); // Pass studentId to Profile
+
       default:
         return _buildHomeTab();
     }
@@ -380,7 +374,7 @@ class _HomeState extends State<Home> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Login()),
+                  MaterialPageRoute(builder: (context) => LoginPage()),
                 );
               },
             ),
