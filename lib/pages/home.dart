@@ -413,7 +413,7 @@ class _HomeState extends State<Home> {
                         ),
                         SizedBox(width: 10),
                         Text(
-                          "Angel Kyle L. Alaba",
+                          currentUser,
                           style: TextStyle(fontWeight: FontWeight.w400),
                         ),
                       ],
