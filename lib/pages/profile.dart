@@ -73,10 +73,11 @@ class _ProfileState extends State<Profile> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Divider(thickness: 1, color: Colors.black12),
+                      SizedBox(height: 10),
                       const Text(
                         "Details",
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 19,
                           fontWeight: FontWeight.w600,
                           color: Color.fromRGBO(114, 114, 114, 1),
                         ),
@@ -86,15 +87,15 @@ class _ProfileState extends State<Profile> {
                         children: [
                           const Icon(
                             Icons.apartment,
-                            size: 18,
+                            size: 20,
                             color: Colors.grey,
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               "Department: $studentDepartment",
                               style: const TextStyle(
-                                fontSize: 14,
+                                fontSize: 16,
                                 color: Colors.grey,
                               ),
                             ),
@@ -106,15 +107,15 @@ class _ProfileState extends State<Profile> {
                         children: [
                           const Icon(
                             Icons.school,
-                            size: 18,
+                            size: 20,
                             color: Colors.grey,
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               "Course: $studentCourse",
                               style: const TextStyle(
-                                fontSize: 14,
+                                fontSize: 16,
                                 color: Colors.grey,
                               ),
                             ),
@@ -125,8 +126,9 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 const Divider(thickness: 1, color: Colors.black12),
+                SizedBox(height: 20),
                 _buildMenuTile(
                   context,
                   icon: Icons.phone_android,
