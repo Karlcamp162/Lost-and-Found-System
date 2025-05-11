@@ -8,17 +8,22 @@ import 'package:lost_and_found_system/pages/loginPage.dart';
 import 'package:lost_and_found_system/pages/preference.dart';
 import 'package:lost_and_found_system/pages/profile.dart';
 import 'package:lost_and_found_system/profileNavigations/aboutUs.dart';
-import 'package:lost_and_found_system/profileNavigations/mypost.dart';
-import 'package:lost_and_found_system/profileNavigations/settings.dart';
+import 'package:lost_and_found_system/profileNavigations/contactUs.dart';
+import 'package:lost_and_found_system/profileNavigations/privacy.dart';
+import 'package:lost_and_found_system/profileNavigations/sendFeedback.dart';
 
 class Home extends StatefulWidget {
   final String currentUserName;
-  final String currentStudentId; // Added this line to pass studentId
+  final String currentStudentId;
+  final String studentDepartmentName;
+  final String studentCourseName; // Added this line to pass studentId
 
   const Home({
     super.key,
     required this.currentUserName,
     required this.currentStudentId,
+    required this.studentDepartmentName,
+    required this.studentCourseName,
   });
 
   @override
@@ -31,6 +36,8 @@ class _HomeState extends State<Home> {
   int _selectedIndex = 0;
   String get currentUser => widget.currentUserName;
   String get currentStudent => widget.currentStudentId; // Access studentId
+  String get studentDepartment => widget.studentDepartmentName;
+  String get studentCourse => widget.studentCourseName;
 
   final ScrollController _scrollController = ScrollController();
   String? selectedPostId;
@@ -295,7 +302,10 @@ class _HomeState extends State<Home> {
         return Profile(
           currentUserName: currentUser,
           studentId: currentStudent,
+          studentDepartmentName: studentDepartment,
+          studentCourseName: studentCourse,
         ); // Pass studentId to Profile
+
       default:
         return _buildHomeTab();
     }
@@ -319,32 +329,42 @@ class _HomeState extends State<Home> {
         child: ListView(
           children: [
             ListTile(
-              leading: Icon(Icons.dashboard_sharp),
-              title: Text("My Post"),
+              leading: Icon(Icons.phone_android),
+              title: Text("About the App"),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => MyPost()),
+                  MaterialPageRoute(builder: (context) => AboutApp()),
                 );
               },
             ),
             ListTile(
-              leading: Icon(Icons.groups_3),
-              title: Text("About Us"),
+              leading: Icon(Icons.data_usage),
+              title: Text("Data and Privacy"),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AboutUs()),
+                  MaterialPageRoute(builder: (context) => Privacy()),
                 );
               },
             ),
             ListTile(
-              leading: Icon(Icons.settings),
-              title: Text("Setting"),
+              leading: Icon(Icons.report_gmailerrorred),
+              title: Text("Contact Us"),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Settings()),
+                  MaterialPageRoute(builder: (context) => ContactUs()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.feedback_outlined),
+              title: Text("Send Feedback"),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SendFeedback()),
                 );
               },
             ),
