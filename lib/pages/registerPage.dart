@@ -186,12 +186,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       onPressed:
                           () {
                             registerUser();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => LoginPage(),
-                              ),
-                            );
+                            Navigator.pop(context);
                           },
                       child: const Text("Register"),
                       style: ElevatedButton.styleFrom(
