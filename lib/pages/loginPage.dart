@@ -20,16 +20,31 @@ class _LoginState extends State<Login> {
 
     if (studentId.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please enter both username and password")),
+        SnackBar(content: Text("Please enter both Student ID and Password")),
       );
       return;
     }
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => Home(currentUserName: studentId)),
+    // Check if user exists
+    final user = UserService().users.firstWhere(
+          (u) => u.studentId == studentId && u.password == password,
+      orElse: null
     );
+
+    if (user != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Home(currentUserName: user.name, currentStudentId: user.studentId,),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Invalid Student ID or Password")),
+      );
+    }
   }
+
 
   void _clearFields() {
     _studentIdController.clear();
@@ -136,7 +151,7 @@ class _LoginState extends State<Login> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Don't have an account? "),
+                    const Text("Don't have an studentIdaccount? "),
                     TextButton(
                       onPressed:
                           () => {
