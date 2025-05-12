@@ -35,7 +35,7 @@ class _PreferenceState extends State<Preference> {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(15),
                   border: Border.all(color: Colors.black12, width: 2),
                   boxShadow: [
                     BoxShadow(
@@ -51,9 +51,27 @@ class _PreferenceState extends State<Preference> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Expanded(child: Container(color: scheme.primary)),
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.horizontal(
+                                left: Radius.circular(15),
+                              ),
+                              color: scheme.primary,
+                            ),
+                          ),
+                        ),
                         Expanded(child: Container(color: scheme.secondary)),
-                        Expanded(child: Container(color: scheme.tertiary ?? scheme.background)),
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.horizontal(
+                                right: Radius.circular(15),
+                              ),
+                              color: scheme.inversePrimary ?? scheme.background,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     Text(
@@ -117,8 +135,9 @@ class AppThemes {
 }
 
 class ThemeController {
-  static final ValueNotifier<ThemeData> currentTheme =
-  ValueNotifier(AppThemes.themes['Original']!);
+  static final ValueNotifier<ThemeData> currentTheme = ValueNotifier(
+    AppThemes.themes['Original']!,
+  );
 
   static void setTheme(String name) {
     currentTheme.value = AppThemes.themes[name]!;
