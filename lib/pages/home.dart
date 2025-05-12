@@ -61,7 +61,6 @@ class _HomeState extends State<Home> {
           _title = "Profile";
           break;
       }
-
     });
   }
 
@@ -224,7 +223,13 @@ class _HomeState extends State<Home> {
 
                           SizedBox(width: 147),
                           ElevatedButton.icon(
-                            onPressed: () {launchUrl(Uri.parse('https://www.facebook.com/angel.alaba.13'));},
+                            onPressed: () {
+                              launchUrl(
+                                Uri.parse(
+                                  'https://www.facebook.com/angel.alaba.13',
+                                ),
+                              );
+                            },
                             label: Text("Message"),
                             icon: Icon(Icons.message),
                             style: ElevatedButton.styleFrom(
@@ -329,6 +334,23 @@ class _HomeState extends State<Home> {
       endDrawer: Drawer(
         child: ListView(
           children: [
+            UserAccountsDrawerHeader(
+              accountName: Text(currentUser),
+              accountEmail: Text(currentStudent),
+              currentAccountPicture: CircleAvatar(
+                backgroundImage: AssetImage("assets/images/image.png"),
+              ),
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("assets/images/cover.jpg"),
+                  fit: BoxFit.cover,
+                  colorFilter: ColorFilter.mode(
+                    Colors.black.withOpacity(0.6), // Adjust darkness here
+                    BlendMode.darken,
+                  ),
+                ),
+              ),
+            ),
             ListTile(
               leading: Icon(Icons.phone_android),
               title: Text("About the App"),
@@ -421,6 +443,10 @@ class _HomeState extends State<Home> {
             }
 
             return AlertDialog(
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 24,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -440,14 +466,24 @@ class _HomeState extends State<Home> {
                             "assets/images/image.png",
                           ),
                         ),
-                        SizedBox(width: 10),
-                        Text(
-                          currentUser,
-                          style: TextStyle(fontWeight: FontWeight.w400),
+                        SizedBox(width: 9),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              currentUser,
+                              style: TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                            Text(
+                              currentStudent,
+                              style: TextStyle(fontWeight: FontWeight.w400),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 15),
                     TextField(
                       controller: postController,
                       maxLines: 5,
