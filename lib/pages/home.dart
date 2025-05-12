@@ -411,7 +411,7 @@ class _HomeState extends State<Home> {
         onPressed: () {
           _showAddPostDialog(context);
         },
-        child: Icon(Icons.add),
+        child: Icon(Icons.add, size: 35),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
