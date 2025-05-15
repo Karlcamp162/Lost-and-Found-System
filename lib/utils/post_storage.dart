@@ -9,10 +9,19 @@ class PostStorage {
   }
 
   static Future<void> savePosts(List<Map<String, dynamic>> posts) async {
+    final List<Map<String, dynamic>> postsToSave =
+        posts.map((post) {
+          final newPost = Map<String, dynamic>.from(post);
+          if (newPost['timestamp'] is DateTime) {
+            newPost['timestamp'] =
+                (newPost['timestamp'] as DateTime).toIso8601String();
+          }
+          return newPost;
+        }).toList();
+
     final path = await _getFilePath();
     final file = File(path);
-    await file.writeAsString(jsonEncode(posts));
-    print('Saving posts to: ${file.path}');
+    await file.writeAsString(json.encode(postsToSave));
   }
 
   static Future<List<Map<String, dynamic>>> loadPosts() async {
