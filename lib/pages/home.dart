@@ -18,7 +18,7 @@ class Home extends StatefulWidget {
   final String currentUserName;
   final String currentStudentId;
   final String studentDepartmentName;
-  final String studentCourseName; // Added this line to pass studentId
+  final String studentCourseName;
 
   const Home({
     super.key,
@@ -37,7 +37,7 @@ class _HomeState extends State<Home> {
 
   int _selectedIndex = 0;
   String get currentUser => widget.currentUserName;
-  String get currentStudent => widget.currentStudentId; // Access studentId
+  String get currentStudent => widget.currentStudentId;
   String get studentDepartment => widget.studentDepartmentName;
   String get studentCourse => widget.studentCourseName;
 
@@ -48,7 +48,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    _loadPosts(); // <-- Load saved posts
+    _loadPosts();
   }
 
   void _loadPosts() async {
@@ -58,8 +58,7 @@ class _HomeState extends State<Home> {
         loadedPosts.map((post) {
           post['timestamp'] = DateTime.parse(post['timestamp']);
           post['images'] = (post['images'] as List<dynamic>).cast<String>();
-          post['likedBy'] =
-              (post['likedBy'] as List<dynamic>).cast<String>(); // ✅ fix here
+          post['likedBy'] = (post['likedBy'] as List<dynamic>).cast<String>();
           return post;
         }),
       );
@@ -91,7 +90,7 @@ class _HomeState extends State<Home> {
       'id': DateTime.now().millisecondsSinceEpoch.toString(),
       'caption': post,
       'images': imagePaths,
-      'timestamp': timestamp.toIso8601String(), // stored as string
+      'timestamp': timestamp.toIso8601String(),
       'likes': 0,
       'isLiked': false,
       'likedBy': <String>[],
@@ -100,12 +99,10 @@ class _HomeState extends State<Home> {
     };
 
     setState(() {
-      // Convert timestamp string back to DateTime here
-      newPost['timestamp'] = timestamp; // Convert directly instead of string
+      newPost['timestamp'] = timestamp;
       posts.insert(0, newPost);
     });
 
-    // Save copy with timestamp as string
     final newPostForStorage = Map<String, dynamic>.from(newPost);
     newPostForStorage['timestamp'] = timestamp.toIso8601String();
 
@@ -173,10 +170,8 @@ class _HomeState extends State<Home> {
                           border: Border.all(
                             color: Colors.indigo.withOpacity(0.2),
                             width: 1.0,
-                          ), // Set border color and width
-                          borderRadius: BorderRadius.circular(
-                            2.0,
-                          ), // Optional: Set border radius
+                          ),
+                          borderRadius: BorderRadius.circular(2.0),
                         ),
                         width: double.infinity,
                         padding: EdgeInsets.all(8.0),
@@ -239,7 +234,7 @@ class _HomeState extends State<Home> {
                                     }
                                   });
 
-                                  PostStorage.savePosts(posts); // Save changes
+                                  PostStorage.savePosts(posts);
                                 },
 
                                 icon: Icon(
@@ -319,14 +314,14 @@ class _HomeState extends State<Home> {
           onSeeMore: (postId) {
             setState(() {
               selectedPostId = postId;
-              _selectedIndex = 0; // switch to Home tab
+              _selectedIndex = 0;
             });
 
             WidgetsBinding.instance.addPostFrameCallback((_) {
               final index = posts.indexWhere((p) => p['id'] == postId);
               if (index != -1) {
                 _scrollController.animateTo(
-                  index * 280.0, // estimated height per post
+                  index * 280.0,
                   duration: const Duration(milliseconds: 400),
                   curve: Curves.easeInOut,
                 );
@@ -355,9 +350,7 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text(_title, style: TextStyle(color: Colors.white)),
         backgroundColor: Theme.of(context).colorScheme.primary,
-        iconTheme: const IconThemeData(
-          color: Colors.white, // Change the drawer icon color
-        ),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       bottomNavigationBar: BottomNavigationWidget(
         tabIndex: tabIndex,

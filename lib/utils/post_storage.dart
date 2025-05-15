@@ -4,8 +4,7 @@ import 'package:path_provider/path_provider.dart';
 
 class PostStorage {
   static Future<String> _getFilePath() async {
-    final directory =
-        await getApplicationDocumentsDirectory(); // Safe internal location
+    final directory = await getApplicationDocumentsDirectory();
     return '${directory.path}/posts.json';
   }
 
