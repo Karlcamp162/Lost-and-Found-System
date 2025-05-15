@@ -83,7 +83,7 @@ class SendFeedback extends StatelessWidget {
 
                       children: [
                         TextSpan(
-                          text: "NEMSULost&Found/Feedback.com",
+                          text: "NEMSUSmartFind/Feedback.com",
                           style: TextStyle(
                             color: Colors.blue,
                             height: 1.5,

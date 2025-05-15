@@ -83,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
         color: Theme.of(context).colorScheme.primary,
         child: const Center(
           child: Text(
-            "Lost and Found System ® 2025",
+            "NEMSU SmartFind ® 2025",
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,

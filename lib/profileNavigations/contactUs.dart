@@ -84,7 +84,7 @@ class ContactUs extends StatelessWidget {
                         ),
 
                         TextSpan(
-                          text: "NEMSULost&Found.nemsu.edu.ph",
+                          text: "NEMSUSmartFind.nemsu.edu.ph",
                           style: TextStyle(
                             color: Colors.blue,
                             height: 1.5,
