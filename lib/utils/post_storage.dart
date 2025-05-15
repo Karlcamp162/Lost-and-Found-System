@@ -13,6 +13,7 @@ class PostStorage {
     final path = await _getFilePath();
     final file = File(path);
     await file.writeAsString(jsonEncode(posts));
+    print('Saving posts to: ${file.path}');
   }
 
   static Future<List<Map<String, dynamic>>> loadPosts() async {

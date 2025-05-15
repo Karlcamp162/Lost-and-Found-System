@@ -57,6 +57,9 @@ class _HomeState extends State<Home> {
       posts.addAll(
         loadedPosts.map((post) {
           post['timestamp'] = DateTime.parse(post['timestamp']);
+          post['images'] = (post['images'] as List<dynamic>).cast<String>();
+          post['likedBy'] =
+              (post['likedBy'] as List<dynamic>).cast<String>(); // ✅ fix here
           return post;
         }),
       );
@@ -88,7 +91,7 @@ class _HomeState extends State<Home> {
       'id': DateTime.now().millisecondsSinceEpoch.toString(),
       'caption': post,
       'images': imagePaths,
-      'timestamp': timestamp.toIso8601String(), // Save as string
+      'timestamp': timestamp.toIso8601String(), // stored as string
       'likes': 0,
       'isLiked': false,
       'likedBy': <String>[],
@@ -97,10 +100,23 @@ class _HomeState extends State<Home> {
     };
 
     setState(() {
+      // Convert timestamp string back to DateTime here
+      newPost['timestamp'] = timestamp; // Convert directly instead of string
       posts.insert(0, newPost);
     });
 
-    PostStorage.savePosts(posts); // Save to file
+    // Save copy with timestamp as string
+    final newPostForStorage = Map<String, dynamic>.from(newPost);
+    newPostForStorage['timestamp'] = timestamp.toIso8601String();
+
+    PostStorage.savePosts([
+      ...posts.map((post) {
+        final storagePost = Map<String, dynamic>.from(post);
+        storagePost['timestamp'] =
+            (post['timestamp'] as DateTime).toIso8601String();
+        return storagePost;
+      }),
+    ]);
   }
 
   Widget _buildHomeTab() {
