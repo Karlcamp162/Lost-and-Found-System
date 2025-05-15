@@ -11,6 +11,7 @@ import 'package:lost_and_found_system/profileNavigations/aboutUs.dart';
 import 'package:lost_and_found_system/profileNavigations/contactUs.dart';
 import 'package:lost_and_found_system/profileNavigations/privacy.dart';
 import 'package:lost_and_found_system/profileNavigations/sendFeedback.dart';
+import 'package:lost_and_found_system/utils/post_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Home extends StatefulWidget {
@@ -44,6 +45,24 @@ class _HomeState extends State<Home> {
   String? selectedPostId;
   String _title = "";
 
+  @override
+  void initState() {
+    super.initState();
+    _loadPosts(); // <-- Load saved posts
+  }
+
+  void _loadPosts() async {
+    final loadedPosts = await PostStorage.loadPosts();
+    setState(() {
+      posts.addAll(
+        loadedPosts.map((post) {
+          post['timestamp'] = DateTime.parse(post['timestamp']);
+          return post;
+        }),
+      );
+    });
+  }
+
   void tabIndex(int index) {
     setState(() {
       _selectedIndex = index;
@@ -65,19 +84,23 @@ class _HomeState extends State<Home> {
   }
 
   void _addPost(String post, List<String> imagePaths, DateTime timestamp) {
+    final newPost = {
+      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'caption': post,
+      'images': imagePaths,
+      'timestamp': timestamp.toIso8601String(), // Save as string
+      'likes': 0,
+      'isLiked': false,
+      'likedBy': <String>[],
+      'authorName': currentUser,
+      'authorId': currentStudent,
+    };
+
     setState(() {
-      posts.insert(0, {
-        'id': DateTime.now().millisecondsSinceEpoch.toString(),
-        'caption': post,
-        'images': imagePaths,
-        'timestamp': timestamp,
-        'likes': 0,
-        'isLiked': false,
-        'likedBy': <String>[],
-        'authorName': currentUser,
-        'authorId': currentStudent,
-      });
+      posts.insert(0, newPost);
     });
+
+    PostStorage.savePosts(posts); // Save to file
   }
 
   Widget _buildHomeTab() {
@@ -189,16 +212,8 @@ class _HomeState extends State<Home> {
                                   setState(() {
                                     post['isLiked'] = !post['isLiked'];
                                     post['likes'] += post['isLiked'] ? 1 : -1;
-
-                                    // Simulated current user name
-                                    if (post['likedBy'] == null ||
-                                        post['likedBy'] is! List) {
-                                      post['likedBy'] = <String>[];
-                                    }
-
                                     final likedBy =
                                         post['likedBy'] as List<String>;
-
                                     if (post['isLiked']) {
                                       if (!likedBy.contains(currentUser)) {
                                         likedBy.add(currentUser);
@@ -207,6 +222,8 @@ class _HomeState extends State<Home> {
                                       likedBy.remove(currentUser);
                                     }
                                   });
+
+                                  PostStorage.savePosts(posts); // Save changes
                                 },
 
                                 icon: Icon(
