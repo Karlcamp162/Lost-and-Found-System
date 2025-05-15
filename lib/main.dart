@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lost_and_found_system/pages/preference.dart';
 import 'package:lost_and_found_system/pages/loginPage.dart';
 
-
 void main() {
   runApp(const LostAndFoundSystem());
 }
@@ -16,7 +15,7 @@ class LostAndFoundSystem extends StatelessWidget {
       valueListenable: ThemeController.currentTheme,
       builder: (context, theme, _) {
         return MaterialApp(
-          title: "Lost and Found System",
+          title: "NEMSU SmartFind",
           debugShowCheckedModeBanner: false,
           theme: theme,
           home: LoginPage(),
