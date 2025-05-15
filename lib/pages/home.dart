@@ -66,7 +66,7 @@ class _HomeState extends State<Home> {
 
   void _addPost(String post, List<String> imagePaths, DateTime timestamp) {
     setState(() {
-      posts.add({
+      posts.insert(0, {
         'id': DateTime.now().millisecondsSinceEpoch.toString(),
         'caption': post,
         'images': imagePaths,
@@ -289,7 +289,6 @@ class _HomeState extends State<Home> {
               _selectedIndex = 0; // switch to Home tab
             });
 
-            // Wait for frame render then scroll
             WidgetsBinding.instance.addPostFrameCallback((_) {
               final index = posts.indexWhere((p) => p['id'] == postId);
               if (index != -1) {
@@ -310,7 +309,7 @@ class _HomeState extends State<Home> {
           studentId: currentStudent,
           studentDepartmentName: studentDepartment,
           studentCourseName: studentCourse,
-        ); // Pass studentId to Profile
+        );
 
       default:
         return _buildHomeTab();
@@ -345,7 +344,7 @@ class _HomeState extends State<Home> {
                   image: AssetImage("assets/images/cover.jpg"),
                   fit: BoxFit.cover,
                   colorFilter: ColorFilter.mode(
-                    Colors.black.withOpacity(0.6), // Adjust darkness here
+                    Colors.black.withOpacity(0.6),
                     BlendMode.darken,
                   ),
                 ),
