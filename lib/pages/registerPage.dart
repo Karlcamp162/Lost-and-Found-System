@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lost_and_found_system/pages/loginPage.dart';
+import 'package:lost_and_found_system/utils/user_storage.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -48,28 +49,53 @@ class _RegisterPageState extends State<RegisterPage> {
   final courseController = TextEditingController();
   final passwordController = TextEditingController();
 
-  void registerUser() {
-    final user = User(
-      name: nameController.text,
-      studentId: studentIdController.text,
-      department: departmentController.text,
-      course: courseController.text,
-      password: passwordController.text,
-    );
+  void registerUser() async {
+    final newUser = {
+      'name': nameController.text,
+      'studentId': studentIdController.text,
+      'department': departmentController.text,
+      'course': courseController.text,
+      'password': passwordController.text,
+    };
 
-    UserService().users.add(user); // Add to global list
+    final success = await UserStorage.addUser(newUser);
 
-    // Clear fields
-    nameController.clear();
-    studentIdController.clear();
-    departmentController.clear();
-    courseController.clear();
-    passwordController.clear();
+    if (success) {
+      // Clear fields
+      nameController.clear();
+      studentIdController.clear();
+      departmentController.clear();
+      courseController.clear();
+      passwordController.clear();
 
-    // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('User registered successfully!')),
-    );
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User registered successfully!')),
+        );
+        Navigator.pop(context);
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Student ID already exists!')),
+        );
+      }
+    }
+  }
+
+  void handleRegister() {
+    if (nameController.text.isEmpty ||
+        studentIdController.text.isEmpty ||
+        departmentController.text.isEmpty ||
+        courseController.text.isEmpty ||
+        passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill up all fields.')),
+      );
+    } else {
+      registerUser();
+    }
   }
 
   @override
@@ -184,8 +210,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        registerUser();
-                        Navigator.pop(context);
+                        handleRegister();
                       },
                       child: const Text("Register"),
                       style: ElevatedButton.styleFrom(

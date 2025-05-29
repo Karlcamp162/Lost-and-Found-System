@@ -13,113 +13,105 @@ class Inbox extends StatefulWidget {
 class _InboxState extends State<Inbox> {
   @override
   Widget build(BuildContext context) {
-    // Filter posts that have at least one like
-    final likedPosts =
-        widget.likedPosts.where((post) {
-          final likedBy = post['likedBy'];
-          return likedBy is List && likedBy.isNotEmpty;
-        }).toList();
+    // Flatten the liked posts to one item per user like
+    final notifications = <Map<String, dynamic>>[];
+
+    for (var post in widget.likedPosts) {
+      final likedBy = post['likedBy'];
+      if (likedBy is List && likedBy.isNotEmpty) {
+        for (var user in likedBy) {
+          notifications.add({
+            'user': user,
+            'caption': post['caption'],
+            'postId': post['id'],
+          });
+        }
+      }
+    }
 
     return Scaffold(
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(top: 15),
-          child:
-              likedPosts.isEmpty
-                  ? const Center(child: Text("No notifications"))
-                  : ListView.builder(
-                    itemCount: likedPosts.length,
-                    itemBuilder: (context, index) {
-                      final post = likedPosts[index];
-                      final caption = post['caption'] ?? '';
-                      final likedBy =
-                          (post['likedBy'] as List<dynamic>)
-                              .map((e) => e.toString())
-                              .toList();
+          child: notifications.isEmpty
+              ? const Center(child: Text("No notifications"))
+              : ListView.builder(
+            itemCount: notifications.length,
+            itemBuilder: (context, index) {
+              final notif = notifications[index];
+              final user = notif['user'].toString();
+              final caption = notif['caption'] ?? '';
+              final postId = notif['postId'];
 
-                      return Padding(
-                        padding: const EdgeInsets.only(
-                          left: 10,
-                          right: 10,
-                          bottom: 10,
-                        ),
-                        child: SizedBox(
-                          height: 97,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color.fromRGBO(255, 224, 100, 0.581),
-                              border: Border.all(
-                                color: Colors.indigo.withOpacity(0.4),
-                                width: 1,
-                              ),
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                            child: Column(
-                              children:
-                                  likedBy.map<Widget>((user) {
-                                    final truncated =
-                                        caption.length > 100
-                                            ? caption.substring(0, 100) + "..."
-                                            : caption;
-                                    return ListTile(
-                                      leading: const Icon(
-                                        Icons.favorite,
-                                        color: Colors.red,
-                                      ),
-                                      title: Text(
-                                        "$user liked your post",
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
+              final truncated = caption.length > 100
+                  ? caption.substring(0, 100) + "..."
+                  : caption;
 
-                                      subtitle: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            caption,
-                                            maxLines: 2, // <<< LIMIT TO 2 LINES
-                                            overflow:
-                                                TextOverflow
-                                                    .ellipsis, // <<< SHOW "..."
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                            ),
-                                          ),
-
-                                          if (caption.length > 100)
-                                            GestureDetector(
-                                              onTap: () {
-                                                widget.onSeeMore(post['id']);
-                                              },
-                                              child: const Text(
-                                                "See more",
-                                                style: TextStyle(
-                                                  color: Colors.blue,
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                            vertical: 2,
-                                          ),
-                                      visualDensity: VisualDensity.compact,
-                                    );
-                                  }).toList(),
-                            ),
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color.fromRGBO(255, 224, 100, 0.581),
+                    border: Border.all(
+                      color: Colors.indigo.withOpacity(0.4),
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: ListTile(
+                    leading: const Icon(Icons.favorite, color: Colors.red),
+                    title: Row(
+                      children: [
+                        Text(
+                          "$user liked your post",
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                      );
-                    },
+                        if (caption.length > 10)
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: GestureDetector(
+                              onTap: () {
+                                widget.onSeeMore(postId);
+                              },
+                              child: const Text(
+                                "See more",
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          caption,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+
+                      ],
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
+                    visualDensity: VisualDensity.compact,
                   ),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
   }
 }
+
