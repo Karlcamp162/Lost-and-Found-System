@@ -33,85 +33,99 @@ class _InboxState extends State<Inbox> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(top: 15),
-          child: notifications.isEmpty
-              ? const Center(child: Text("No notifications"))
-              : ListView.builder(
-            itemCount: notifications.length,
-            itemBuilder: (context, index) {
-              final notif = notifications[index];
-              final user = notif['user'].toString();
-              final caption = notif['caption'] ?? '';
-              final postId = notif['postId'];
+          child:
+              notifications.isEmpty
+                  ? const Center(child: Text("No notifications"))
+                  : ListView.builder(
+                    itemCount: notifications.length,
+                    itemBuilder: (context, index) {
+                      final notif = notifications[index];
+                      final user = notif['user'].toString();
+                      final caption = notif['caption'] ?? '';
+                      final postId = notif['postId'];
 
-              final truncated = caption.length > 100
-                  ? caption.substring(0, 100) + "..."
-                  : caption;
+                      final truncated =
+                          caption.length > 100
+                              ? caption.substring(0, 100) + "..."
+                              : caption;
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color.fromRGBO(255, 224, 100, 0.581),
-                    border: Border.all(
-                      color: Colors.indigo.withOpacity(0.4),
-                      width: 1,
-                    ),
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: ListTile(
-                    leading: const Icon(Icons.favorite, color: Colors.red),
-                    title: Row(
-                      children: [
-                        Text(
-                          "$user liked your post",
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                          ),
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
                         ),
-                        if (caption.length > 10)
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: GestureDetector(
-                              onTap: () {
-                                widget.onSeeMore(postId);
-                              },
-                              child: const Text(
-                                "See more",
-                                style: TextStyle(
-                                  color: Colors.blue,
-                                  fontSize: 12,
-                                ),
-                              ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(255, 224, 100, 0.581),
+                            border: Border.all(
+                              color: Colors.indigo.withOpacity(0.4),
+                              width: 1,
                             ),
+                            borderRadius: BorderRadius.circular(25),
                           ),
-                      ],
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          caption,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 12),
+                          child: ListTile(
+                            leading: const Icon(
+                              Icons.favorite,
+                              color: Colors.red,
+                            ),
+                            title: Row(
+                              children: [
+                                Text(
+                                  "$user liked your post",
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      alignment: Alignment.bottomRight,
+                                      width: 210,
+                                      child: Text(
+                                        caption,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                    ),
+                                    if (caption.length > 10)
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            widget.onSeeMore(postId);
+                                          },
+                                          child: const Text(
+                                            "See more",
+                                            style: TextStyle(
+                                              color: Colors.blue,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8,
+                            ),
+                            visualDensity: VisualDensity.compact,
+                          ),
                         ),
-
-                      ],
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 8,
-                    ),
-                    visualDensity: VisualDensity.compact,
+                      );
+                    },
                   ),
-                ),
-              );
-            },
-          ),
         ),
       ),
     );
   }
 }
-
