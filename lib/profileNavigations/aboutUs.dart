@@ -24,7 +24,7 @@ class AboutApp extends StatelessWidget {
           children: [
             SizedBox(height: 10),
             Text(
-              'Welcome to the Official NEMSU Lost & Found App',
+              'Welcome to the Official NEMSU SmartFind App',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,

@@ -97,7 +97,7 @@ class _RegisterPageState extends State<RegisterPage> {
         color: Theme.of(context).colorScheme.primary,
         child: const Center(
           child: Text(
-            "Lost and Found System ® 2025",
+            "NEMSU SmartFind ® 2025",
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -183,11 +183,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
-                      onPressed:
-                          () {
-                            registerUser();
-                            Navigator.pop(context);
-                          },
+                      onPressed: () {
+                        registerUser();
+                        Navigator.pop(context);
+                      },
                       child: const Text("Register"),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(

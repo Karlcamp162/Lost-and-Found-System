@@ -11,13 +11,14 @@ import 'package:lost_and_found_system/profileNavigations/aboutUs.dart';
 import 'package:lost_and_found_system/profileNavigations/contactUs.dart';
 import 'package:lost_and_found_system/profileNavigations/privacy.dart';
 import 'package:lost_and_found_system/profileNavigations/sendFeedback.dart';
+import 'package:lost_and_found_system/utils/post_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Home extends StatefulWidget {
   final String currentUserName;
   final String currentStudentId;
   final String studentDepartmentName;
-  final String studentCourseName; // Added this line to pass studentId
+  final String studentCourseName;
 
   const Home({
     super.key,
@@ -36,13 +37,33 @@ class _HomeState extends State<Home> {
 
   int _selectedIndex = 0;
   String get currentUser => widget.currentUserName;
-  String get currentStudent => widget.currentStudentId; // Access studentId
+  String get currentStudent => widget.currentStudentId;
   String get studentDepartment => widget.studentDepartmentName;
   String get studentCourse => widget.studentCourseName;
 
   final ScrollController _scrollController = ScrollController();
   String? selectedPostId;
   String _title = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPosts();
+  }
+
+  void _loadPosts() async {
+    final loadedPosts = await PostStorage.loadPosts();
+    setState(() {
+      posts.addAll(
+        loadedPosts.map((post) {
+          post['timestamp'] = DateTime.parse(post['timestamp']);
+          post['images'] = (post['images'] as List<dynamic>).cast<String>();
+          post['likedBy'] = (post['likedBy'] as List<dynamic>).cast<String>();
+          return post;
+        }),
+      );
+    });
+  }
 
   void tabIndex(int index) {
     setState(() {
@@ -61,24 +82,38 @@ class _HomeState extends State<Home> {
           _title = "Profile";
           break;
       }
-
     });
   }
 
   void _addPost(String post, List<String> imagePaths, DateTime timestamp) {
+    final newPost = {
+      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'caption': post,
+      'images': imagePaths,
+      'timestamp': timestamp.toIso8601String(),
+      'likes': 0,
+      'isLiked': false,
+      'likedBy': <String>[],
+      'authorName': currentUser,
+      'authorId': currentStudent,
+    };
+
     setState(() {
-      posts.add({
-        'id': DateTime.now().millisecondsSinceEpoch.toString(),
-        'caption': post,
-        'images': imagePaths,
-        'timestamp': timestamp,
-        'likes': 0,
-        'isLiked': false,
-        'likedBy': <String>[],
-        'authorName': currentUser,
-        'authorId': currentStudent,
-      });
+      newPost['timestamp'] = timestamp;
+      posts.insert(0, newPost);
     });
+
+    final newPostForStorage = Map<String, dynamic>.from(newPost);
+    newPostForStorage['timestamp'] = timestamp.toIso8601String();
+
+    PostStorage.savePosts([
+      ...posts.map((post) {
+        final storagePost = Map<String, dynamic>.from(post);
+        storagePost['timestamp'] =
+            (post['timestamp'] as DateTime).toIso8601String();
+        return storagePost;
+      }),
+    ]);
   }
 
   Widget _buildHomeTab() {
@@ -135,10 +170,8 @@ class _HomeState extends State<Home> {
                           border: Border.all(
                             color: Colors.indigo.withOpacity(0.2),
                             width: 1.0,
-                          ), // Set border color and width
-                          borderRadius: BorderRadius.circular(
-                            2.0,
-                          ), // Optional: Set border radius
+                          ),
+                          borderRadius: BorderRadius.circular(2.0),
                         ),
                         width: double.infinity,
                         padding: EdgeInsets.all(8.0),
@@ -190,16 +223,8 @@ class _HomeState extends State<Home> {
                                   setState(() {
                                     post['isLiked'] = !post['isLiked'];
                                     post['likes'] += post['isLiked'] ? 1 : -1;
-
-                                    // Simulated current user name
-                                    if (post['likedBy'] == null ||
-                                        post['likedBy'] is! List) {
-                                      post['likedBy'] = <String>[];
-                                    }
-
                                     final likedBy =
                                         post['likedBy'] as List<String>;
-
                                     if (post['isLiked']) {
                                       if (!likedBy.contains(currentUser)) {
                                         likedBy.add(currentUser);
@@ -208,6 +233,8 @@ class _HomeState extends State<Home> {
                                       likedBy.remove(currentUser);
                                     }
                                   });
+
+                                  PostStorage.savePosts(posts);
                                 },
 
                                 icon: Icon(
@@ -224,7 +251,13 @@ class _HomeState extends State<Home> {
 
                           SizedBox(width: 147),
                           ElevatedButton.icon(
-                            onPressed: () {launchUrl(Uri.parse('https://www.facebook.com/angel.alaba.13'));},
+                            onPressed: () {
+                              launchUrl(
+                                Uri.parse(
+                                  'https://www.facebook.com/angel.alaba.13',
+                                ),
+                              );
+                            },
                             label: Text("Message"),
                             icon: Icon(Icons.message),
                             style: ElevatedButton.styleFrom(
@@ -281,15 +314,14 @@ class _HomeState extends State<Home> {
           onSeeMore: (postId) {
             setState(() {
               selectedPostId = postId;
-              _selectedIndex = 0; // switch to Home tab
+              _selectedIndex = 0;
             });
 
-            // Wait for frame render then scroll
             WidgetsBinding.instance.addPostFrameCallback((_) {
               final index = posts.indexWhere((p) => p['id'] == postId);
               if (index != -1) {
                 _scrollController.animateTo(
-                  index * 280.0, // estimated height per post
+                  index * 280.0,
                   duration: const Duration(milliseconds: 400),
                   curve: Curves.easeInOut,
                 );
@@ -305,7 +337,7 @@ class _HomeState extends State<Home> {
           studentId: currentStudent,
           studentDepartmentName: studentDepartment,
           studentCourseName: studentCourse,
-        ); // Pass studentId to Profile
+        );
 
       default:
         return _buildHomeTab();
@@ -318,9 +350,7 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text(_title, style: TextStyle(color: Colors.white)),
         backgroundColor: Theme.of(context).colorScheme.primary,
-        iconTheme: const IconThemeData(
-          color: Colors.white, // Change the drawer icon color
-        ),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       bottomNavigationBar: BottomNavigationWidget(
         tabIndex: tabIndex,
@@ -329,6 +359,23 @@ class _HomeState extends State<Home> {
       endDrawer: Drawer(
         child: ListView(
           children: [
+            UserAccountsDrawerHeader(
+              accountName: Text(currentUser),
+              accountEmail: Text(currentStudent),
+              currentAccountPicture: CircleAvatar(
+                backgroundImage: AssetImage("assets/images/image.png"),
+              ),
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("assets/images/cover.jpg"),
+                  fit: BoxFit.cover,
+                  colorFilter: ColorFilter.mode(
+                    Colors.black.withOpacity(0.6),
+                    BlendMode.darken,
+                  ),
+                ),
+              ),
+            ),
             ListTile(
               leading: Icon(Icons.phone_android),
               title: Text("About the App"),
@@ -389,7 +436,7 @@ class _HomeState extends State<Home> {
         onPressed: () {
           _showAddPostDialog(context);
         },
-        child: Icon(Icons.add),
+        child: Icon(Icons.add, size: 35),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
@@ -421,6 +468,10 @@ class _HomeState extends State<Home> {
             }
 
             return AlertDialog(
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 24,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -440,14 +491,24 @@ class _HomeState extends State<Home> {
                             "assets/images/image.png",
                           ),
                         ),
-                        SizedBox(width: 10),
-                        Text(
-                          currentUser,
-                          style: TextStyle(fontWeight: FontWeight.w400),
+                        SizedBox(width: 9),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              currentUser,
+                              style: TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                            Text(
+                              currentStudent,
+                              style: TextStyle(fontWeight: FontWeight.w400),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 15),
                     TextField(
                       controller: postController,
                       maxLines: 5,
