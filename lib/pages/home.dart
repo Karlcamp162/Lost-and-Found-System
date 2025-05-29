@@ -386,11 +386,24 @@ class _HomeState extends State<Home> {
                                     ) {
                                       final file = File(path);
                                       if (file.existsSync()) {
-                                        return Image.file(
-                                          file,
-                                          height: 80,
-                                          width: 80,
-                                          fit: BoxFit.cover,
+                                        return GestureDetector(
+                                          onTap: () {
+                                            showDialog(
+                                              context: context,
+                                              builder:
+                                                  (_) => Dialog(
+                                                    child: InteractiveViewer(
+                                                      child: Image.file(file),
+                                                    ),
+                                                  ),
+                                            );
+                                          },
+                                          child: Image.file(
+                                            file,
+                                            height: 80,
+                                            width: 80,
+                                            fit: BoxFit.cover,
+                                          ),
                                         );
                                       } else {
                                         return Container(
