@@ -54,11 +54,16 @@ class _HomeState extends State<Home> {
   void _loadPosts() async {
     final loadedPosts = await PostStorage.loadPosts();
     setState(() {
+      posts.clear(); // Clear existing posts before loading
       posts.addAll(
         loadedPosts.map((post) {
           post['timestamp'] = DateTime.parse(post['timestamp']);
           post['images'] = (post['images'] as List<dynamic>).cast<String>();
           post['likedBy'] = (post['likedBy'] as List<dynamic>).cast<String>();
+          // Initialize isLiked based on whether current user has liked the post
+          post['isLiked'] = (post['likedBy'] as List<String>).contains(
+            currentUser,
+          );
           return post;
         }),
       );
@@ -70,7 +75,7 @@ class _HomeState extends State<Home> {
       _selectedIndex = index;
       switch (index) {
         case 0:
-          _title = "Home";
+          _title = "SmartFind";
           break;
         case 1:
           _title = "Notifications";
@@ -96,6 +101,8 @@ class _HomeState extends State<Home> {
       'likedBy': <String>[],
       'authorName': currentUser,
       'authorId': currentStudent,
+      'department': studentDepartment,
+      'course': studentCourse,
     };
 
     setState(() {
@@ -116,6 +123,23 @@ class _HomeState extends State<Home> {
     ]);
   }
 
+  void _updatePost(int index, String caption, List<String> imagePaths) {
+    setState(() {
+      posts[index]['caption'] = caption;
+      posts[index]['images'] = imagePaths;
+      posts[index]['editedAt'] = DateTime.now().toIso8601String();
+    });
+
+    PostStorage.savePosts([
+      ...posts.map((post) {
+        final storagePost = Map<String, dynamic>.from(post);
+        storagePost['timestamp'] =
+            (post['timestamp'] as DateTime).toIso8601String();
+        return storagePost;
+      }),
+    ]);
+  }
+
   Widget _buildHomeTab() {
     return SafeArea(
       child: ListView.builder(
@@ -125,6 +149,7 @@ class _HomeState extends State<Home> {
           final post = posts[index];
           final DateTime timestamp = post['timestamp'];
           final String formattedTime = DateFormat('hh:mm a').format(timestamp);
+          final bool isCurrentUserPost = post['authorId'] == currentStudent;
 
           return Column(
             children: [
@@ -136,32 +161,198 @@ class _HomeState extends State<Home> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          CircleAvatar(
-                            radius: 29,
-                            backgroundImage: AssetImage(
-                              "assets/images/image.png",
+                          Expanded(
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 29,
+                                  backgroundImage: AssetImage(
+                                    "assets/images/person.jpg",
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        post['authorName'],
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      Text(
+                                        post['authorId'],
+                                        style: TextStyle(
+                                          color: Colors.grey[700],
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            formattedTime,
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                          if (post['editedAt'] != null)
+                                            Text(
+                                              ' (edited)',
+                                              style: TextStyle(
+                                                color: Colors.grey[600],
+                                                fontSize: 12,
+                                                fontStyle: FontStyle.italic,
+                                              ),
+                                            ),
+                                          if (isCurrentUserPost)
+                                            Container(
+                                              margin: EdgeInsets.only(left: 8),
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 2,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.blue[100],
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                              child: Text(
+                                                'Your Post',
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.blue[900],
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          SizedBox(width: 10),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                currentUser,
-                                style: TextStyle(fontWeight: FontWeight.w400),
-                              ),
-                              Text(
-                                formattedTime,
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
+                          if (isCurrentUserPost)
+                            IconButton(
+                              icon: Icon(Icons.more_vert),
+                              onPressed: () {
+                                // Show options menu for user's own post
+                                showDialog(
+                                  context: context,
+                                  builder:
+                                      (context) => AlertDialog(
+                                        title: Text('Post Options'),
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            ListTile(
+                                              leading: Icon(
+                                                Icons.edit,
+                                                color: Colors.blue,
+                                              ),
+                                              title: Text('Edit Post'),
+                                              onTap: () {
+                                                Navigator.pop(context);
+                                                _showEditPostDialog(
+                                                  context,
+                                                  post,
+                                                  index,
+                                                );
+                                              },
+                                            ),
+                                            ListTile(
+                                              leading: Icon(
+                                                Icons.delete,
+                                                color: Colors.red,
+                                              ),
+                                              title: Text('Delete Post'),
+                                              onTap: () {
+                                                Navigator.pop(context);
+                                                // Show confirmation dialog
+                                                showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (context) => AlertDialog(
+                                                        title: Text(
+                                                          'Delete Post?',
+                                                        ),
+                                                        content: Text(
+                                                          'Are you sure you want to delete this post? This action cannot be undone.',
+                                                        ),
+                                                        actions: [
+                                                          TextButton(
+                                                            onPressed:
+                                                                () =>
+                                                                    Navigator.pop(
+                                                                      context,
+                                                                    ),
+                                                            child: Text(
+                                                              'Cancel',
+                                                            ),
+                                                          ),
+                                                          TextButton(
+                                                            onPressed: () {
+                                                              setState(() {
+                                                                posts.removeAt(
+                                                                  index,
+                                                                );
+                                                              });
+                                                              PostStorage.savePosts([
+                                                                ...posts.map((
+                                                                  post,
+                                                                ) {
+                                                                  final storagePost =
+                                                                      Map<
+                                                                        String,
+                                                                        dynamic
+                                                                      >.from(
+                                                                        post,
+                                                                      );
+                                                                  storagePost['timestamp'] =
+                                                                      (post['timestamp']
+                                                                              as DateTime)
+                                                                          .toIso8601String();
+                                                                  return storagePost;
+                                                                }),
+                                                              ]);
+                                                              Navigator.pop(
+                                                                context,
+                                                              );
+                                                              ScaffoldMessenger.of(
+                                                                context,
+                                                              ).showSnackBar(
+                                                                SnackBar(
+                                                                  content: Text(
+                                                                    'Post deleted',
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                            child: Text(
+                                                              'Delete',
+                                                              style: TextStyle(
+                                                                color:
+                                                                    Colors.red,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                );
+                              },
+                            ),
                         ],
                       ),
                       SizedBox(height: 7),
@@ -184,7 +375,8 @@ class _HomeState extends State<Home> {
                               style: TextStyle(fontSize: 16),
                             ),
                             SizedBox(height: 10),
-                            if (post['images'] != null)
+                            if (post['images'] != null &&
+                                (post['images'] as List).isNotEmpty)
                               Wrap(
                                 spacing: 8,
                                 runSpacing: 8,
@@ -214,6 +406,7 @@ class _HomeState extends State<Home> {
                         ),
                       ),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -234,9 +427,17 @@ class _HomeState extends State<Home> {
                                     }
                                   });
 
-                                  PostStorage.savePosts(posts);
+                                  PostStorage.savePosts([
+                                    ...posts.map((p) {
+                                      final storagePost =
+                                          Map<String, dynamic>.from(p);
+                                      storagePost['timestamp'] =
+                                          (p['timestamp'] as DateTime)
+                                              .toIso8601String();
+                                      return storagePost;
+                                    }),
+                                  ]);
                                 },
-
                                 icon: Icon(
                                   post['isLiked']
                                       ? Icons.favorite
@@ -248,48 +449,45 @@ class _HomeState extends State<Home> {
                               Text("${post['likes']}"),
                             ],
                           ),
+                          if (!isCurrentUserPost)
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                launchUrl(Uri.parse('https://www.facebook.com/michael.estal'),
+                                    mode: LaunchMode.externalApplication);
+                              },
 
-                          SizedBox(width: 147),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              launchUrl(
-                                Uri.parse(
-                                  'https://www.facebook.com/angel.alaba.13',
-                                ),
-                              );
-                            },
-                            label: Text("Message"),
-                            icon: Icon(Icons.message),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromRGBO(
-                                208,
-                                213,
-                                241,
-                                1,
-                              ),
-                              foregroundColor: Colors.black,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 10,
-                              ),
-                              textStyle: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              side: BorderSide(
-                                color: const Color.fromRGBO(
+                              icon: Icon(Icons.message),
+                              label: Text("Contact"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color.fromRGBO(
                                   208,
-                                  208,
-                                  208,
+                                  213,
+                                  241,
                                   1,
-                                ).withOpacity(0.5),
-                                width: 1,
+                                ),
+                                foregroundColor: Colors.black,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 15,
+                                  vertical: 10,
+                                ),
+                                textStyle: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                side: BorderSide(
+                                  color: const Color.fromRGBO(
+                                    208,
+                                    208,
+                                    208,
+                                    1,
+                                  ).withOpacity(0.5),
+                                  width: 1,
+                                ),
                               ),
                             ),
-                          ),
                         ],
                       ),
                     ],
@@ -420,9 +618,37 @@ class _HomeState extends State<Home> {
               leading: Icon(Icons.logout),
               title: Text("Log out"),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
+                // Show logout confirmation
+                showDialog(
+                  context: context,
+                  builder:
+                      (context) => AlertDialog(
+                        title: Text('Log Out'),
+                        content: Text('Are you sure you want to log out?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              // Close both the dialog and drawer before logging out
+                              Navigator.pop(context); // Close dialog
+                              Navigator.pop(context); // Close drawer
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LoginPage(),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              'Log Out',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      ),
                 );
               },
             ),
@@ -556,6 +782,192 @@ class _HomeState extends State<Home> {
                     }
                   },
                   child: Text("Post"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showEditPostDialog(
+    BuildContext context,
+    Map<String, dynamic> post,
+    int index,
+  ) {
+    final TextEditingController postController = TextEditingController(
+      text: post['caption'],
+    );
+    final List<String> selectedImages = List.from(post['images']);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            Future<void> pickImages() async {
+              final ImagePicker picker = ImagePicker();
+              final List<XFile> images = await picker.pickMultiImage();
+
+              if (images.isNotEmpty && images.length <= 5) {
+                setDialogState(() {
+                  selectedImages.clear();
+                  selectedImages.addAll(images.map((xfile) => xfile.path));
+                });
+              } else if (images.length > 5) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Please select up to 5 images only."),
+                  ),
+                );
+              }
+            }
+
+            return AlertDialog(
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 24,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              title: Text(
+                "Edit Post",
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 29,
+                          backgroundImage: AssetImage(
+                            "assets/images/image.png",
+                          ),
+                        ),
+                        SizedBox(width: 9),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              currentUser,
+                              style: TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                            Text(
+                              currentStudent,
+                              style: TextStyle(fontWeight: FontWeight.w400),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 15),
+                    TextField(
+                      controller: postController,
+                      maxLines: 5,
+                      decoration: InputDecoration(
+                        hintText: "Where did you last see the item?",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    if (selectedImages.isNotEmpty)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Current Images:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children:
+                                selectedImages.map((path) {
+                                  return Stack(
+                                    children: [
+                                      Image.file(
+                                        File(path),
+                                        height: 80,
+                                        width: 80,
+                                        fit: BoxFit.cover,
+                                      ),
+                                      Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setDialogState(() {
+                                              selectedImages.remove(path);
+                                            });
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.all(2),
+                                            decoration: BoxDecoration(
+                                              color: Colors.red,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              Icons.close,
+                                              size: 16,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }).toList(),
+                          ),
+                        ],
+                      ),
+                    SizedBox(height: 10),
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        await pickImages();
+                      },
+                      icon: Icon(Icons.image),
+                      label: Text(
+                        selectedImages.isEmpty
+                            ? "Add Images (max 5)"
+                            : "Change Images (max 5)",
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (postController.text.isNotEmpty) {
+                      _updatePost(index, postController.text, selectedImages);
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Post updated successfully'),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Post caption cannot be empty'),
+                        ),
+                      );
+                    }
+                  },
+                  child: Text("Save"),
                 ),
               ],
             );

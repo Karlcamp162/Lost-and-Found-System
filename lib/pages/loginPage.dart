@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lost_and_found_system/pages/home.dart';
 import 'package:lost_and_found_system/pages/registerPage.dart'; // Import your Home page
+import 'package:lost_and_found_system/utils/user_storage.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,52 +15,40 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   //username, password, id_number, course,
 
-  void _handleLogin() {
+  void _handleLogin() async {
     String studentId = _studentIdController.text.trim();
     String password = _passwordController.text;
 
     if (studentId.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please enter both Student ID and Password")),
+        const SnackBar(content: Text("Please enter both Student ID and Password")),
       );
       return;
     }
 
     // Check if user exists
-    final user = UserService().users.firstWhere(
-      (u) => u.studentId == studentId && u.password == password,
-      orElse: null,
-    );
+    final user = await UserStorage.findUser(studentId, password);
 
     if (user != null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder:
-              (context) => Home(
-                currentUserName: user.name,
-                currentStudentId: user.studentId,
-                studentDepartmentName: user.department,
-                studentCourseName: user.course,
-              ),
-        ),
-      );
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Home(
+              currentUserName: user['name'],
+              currentStudentId: user['studentId'],
+              studentDepartmentName: user['department'],
+              studentCourseName: user['course'],
+            ),
+          ),
+        );
+      }
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Invalid Student ID or Password")));
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder:
-              (context) => Home(
-                currentUserName: user.name,
-                currentStudentId: user.studentId,
-                studentDepartmentName: user.department,
-                studentCourseName: user.course,
-              ),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Invalid Student ID or Password")),
+        );
+      }
     }
   }
 
