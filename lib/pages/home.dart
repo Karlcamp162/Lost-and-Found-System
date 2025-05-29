@@ -386,11 +386,24 @@ class _HomeState extends State<Home> {
                                     ) {
                                       final file = File(path);
                                       if (file.existsSync()) {
-                                        return Image.file(
-                                          file,
-                                          height: 80,
-                                          width: 80,
-                                          fit: BoxFit.cover,
+                                        return GestureDetector(
+                                          onTap: () {
+                                            showDialog(
+                                              context: context,
+                                              builder:
+                                                  (_) => Dialog(
+                                                    child: InteractiveViewer(
+                                                      child: Image.file(file),
+                                                    ),
+                                                  ),
+                                            );
+                                          },
+                                          child: Image.file(
+                                            file,
+                                            height: 80,
+                                            width: 80,
+                                            fit: BoxFit.cover,
+                                          ),
                                         );
                                       } else {
                                         return Container(
@@ -452,8 +465,12 @@ class _HomeState extends State<Home> {
                           if (!isCurrentUserPost)
                             ElevatedButton.icon(
                               onPressed: () {
-                                launchUrl(Uri.parse('https://www.facebook.com/michael.estal'),
-                                    mode: LaunchMode.externalApplication);
+                                launchUrl(
+                                  Uri.parse(
+                                    'https://www.facebook.com/michael.estal',
+                                  ),
+                                  mode: LaunchMode.externalApplication,
+                                );
                               },
 
                               icon: Icon(Icons.message),
@@ -561,7 +578,7 @@ class _HomeState extends State<Home> {
               accountName: Text(currentUser),
               accountEmail: Text(currentStudent),
               currentAccountPicture: CircleAvatar(
-                backgroundImage: AssetImage("assets/images/image.png"),
+                backgroundImage: AssetImage("assets/images/person.jpg"),
               ),
               decoration: BoxDecoration(
                 image: DecorationImage(
@@ -714,7 +731,7 @@ class _HomeState extends State<Home> {
                         CircleAvatar(
                           radius: 29,
                           backgroundImage: AssetImage(
-                            "assets/images/image.png",
+                            "assets/images/person.jpg",
                           ),
                         ),
                         SizedBox(width: 9),
@@ -845,7 +862,7 @@ class _HomeState extends State<Home> {
                         CircleAvatar(
                           radius: 29,
                           backgroundImage: AssetImage(
-                            "assets/images/image.png",
+                            "assets/images/person.jpg",
                           ),
                         ),
                         SizedBox(width: 9),
